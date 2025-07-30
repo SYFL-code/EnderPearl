@@ -2,9 +2,9 @@
 using System.Linq;
 using static Player;
 
-namespace CentiShields;
+namespace DisplacementOculuses;
 
-sealed class CentiShieldProperties : ItemProperties
+sealed class DisplacementOculusProperties : ItemProperties
 {
     // TODO scavenger elite support TODO 清道夫精英支持
     public override void Throwable(Player player, ref bool throwable)
@@ -31,14 +31,14 @@ sealed class CentiShieldProperties : ItemProperties
         // TwoHands   两只手
 
 
-        // The player can only grab one centishield at a time,
+        // The player can only grab one DisplacementOculus at a time,
         // 玩家一次只能抓取一个百分之盾，
         // but that shouldn't prevent them from grabbing a spear,
         // 但这不应该阻止他们抓住长矛，
         // so don't use Player.ObjectGrabability.BigOneHand
         // 所以不要使用 Player.ObjectGrabability.BigOneHand
 
-        /*if (player.grasps.Any(g => g?.grabbed is CentiShield)) {
+        /*if (player.grasps.Any(g => g?.grabbed is DisplacementOculus)) {
             grabability = Player.ObjectGrabability.CantGrab;
         } else {
             grabability = Player.ObjectGrabability.OneHand;
