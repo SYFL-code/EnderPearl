@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace CentiShields;
 
-[BepInPlugin("org.dual.centishields", nameof(CentiShields), "1.1.1")]
+[BepInPlugin("org.dual.centishields", nameof(CentiShields), "1.1.0")]
 sealed class Plugin : BaseUnityPlugin
 {
     public void OnEnable()
@@ -22,14 +22,14 @@ sealed class Plugin : BaseUnityPlugin
 
         // Protect the player from grabs while holding a shield
         // 手持盾牌时保护玩家免受抓取
-        On.Creature.Grab += CreatureGrab;
+        //On.Creature.Grab += CreatureGrab;
 
         CentiShield.HookTexture();
     }
 
     void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
     {
-        if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
+        /*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
             var tilePos = self.GetTilePosition(shell.pos);
             var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
             var abstr = new CentiShieldAbstract(self.world, pos, self.game.GetNewID()) {
@@ -38,7 +38,17 @@ sealed class Plugin : BaseUnityPlugin
                 scaleX = shell.scaleX,
                 scaleY = shell.scaleY
             };
-            obj = new CentiShield(abstr, shell.pos, shell.vel);
+            obj = new CentiShield(abstr, shell.pos);
+
+            self.abstractRoom.AddEntity(abstr);
+        }*/
+
+        if (obj is Spear spear && Random.value < 0.01f)
+        {
+            var tilePos = self.GetTilePosition(spear.firstChunk.pos);
+            var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
+            var abstr = new CentiShieldAbstract(self.world, pos, self.game.GetNewID());
+            obj = new CentiShield(abstr, spear.firstChunk.pos);
 
             self.abstractRoom.AddEntity(abstr);
         }
@@ -46,7 +56,7 @@ sealed class Plugin : BaseUnityPlugin
         orig(self, obj);
     }
 
-    bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
+    /*bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
     {
         const float maxDistance = 8;
 
@@ -62,5 +72,5 @@ sealed class Plugin : BaseUnityPlugin
         }
 
         return orig(self, obj, _, _2, _3, dominance, _4, _5);
-    }
+    }*/
 }

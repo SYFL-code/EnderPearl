@@ -43,9 +43,6 @@
         <Reference Include="Assembly-CSharp">
           <HintPath>..\lib\UPDATE\PUBLIC-Assembly-CSharp.dll</HintPath>
         </Reference>
-        <Reference Include="ImprovedInput">
-          <HintPath>..\lib\ImprovedInput.dll</HintPath>
-        </Reference>
         <Reference Include="SlugBase">
           <HintPath>..\lib\UPDATE\SlugBase.dll</HintPath>
         </Reference>

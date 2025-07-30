@@ -31,6 +31,14 @@ sealed class CentiShieldFisob : Fisob
 
     public override AbstractPhysicalObject Parse(World world, EntitySaveData saveData, SandboxUnlock? unlock)
     {
+
+        var result = new CentiShieldAbstract(world, saveData.Pos, saveData.ID);
+
+        return result;
+    }
+
+    /*public override AbstractPhysicalObject Parse(World world, EntitySaveData saveData, SandboxUnlock? unlock)
+    {
         // Centi shield data is just floats separated by ; characters.
         // Centi 盾牌数据只是浮点数，以 ;字符。
         string[] p = saveData.CustomData.Split(';');
@@ -59,9 +67,9 @@ sealed class CentiShieldFisob : Fisob
         }
 
         return result;
-    }
+    }*/
 
-    private static readonly CentiShieldProperties properties = new();
+    /*private static readonly CentiShieldProperties properties = new();
 
     public override ItemProperties Properties(PhysicalObject forObject)
     {
@@ -70,5 +78,5 @@ sealed class CentiShieldFisob : Fisob
         // The Mosquitoes example demonstrates this.
         // 蚊子的例子证明了这一点。
         return properties;
-    }
+    }*/
 }

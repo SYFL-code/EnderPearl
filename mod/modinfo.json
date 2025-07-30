@@ -1,12 +1,11 @@
 ﻿{
   "id": "centipede-shields",
   "name": "Centipede Shields",
-  "version": "1.1.2",
+  "version": "1.1.0",
   "authors": "Dual",
   "description": "When a centipede's shell falls off, it has a chance to become an item that you can wield as a shield.<LINE><LINE>Code at https://github.com/Dual-Iron/fisobs/tree/master/examples/centipede-shields",
   "requirements": [ "fisobs" ],
   "requirements_names": [ "Fisobs" ],
   "tags": [ "Items" ],
-  "checksum_override_version": false,
-  "youtube_trailer_id": "pt466Bwf_xg"
+  "checksum_override_version": true
 }
