@@ -1,0 +1,2 @@
+[ADD]SNDTeleport1 : Teleport1/vol=0.6
+[ADD]SNDTeleport2 : Teleport2/vol=0.6

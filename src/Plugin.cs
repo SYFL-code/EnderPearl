@@ -1,8 +1,28 @@
 ﻿using BepInEx;
 using Fisobs.Core;
+using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Security.Permissions;
 using UnityEngine;
+using On;
+using IL;
+//using Mono.Cecil;
+using MoreSlugcats;
+using RWCustom;
+using Smoke;
+using static PhysicalObject;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Collections;
+using SlugBase.Features;
+using System.Diagnostics;
+using RewiredConsts;
+using Menu.Remix;
+using MonoMod.RuntimeDetour;
+using Watcher;
+
+
 
 #pragma warning disable CS0618 // Type or member is obsolete 类型或成员已过时
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -25,6 +45,8 @@ sealed class Plugin : BaseUnityPlugin
         //On.Creature.Grab += CreatureGrab;
 
         CentiShield.HookTexture();
+        CentiShield.HookSound();
+        ParticleEffect.HookTexture();
     }
 
     void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
@@ -43,7 +65,7 @@ sealed class Plugin : BaseUnityPlugin
             self.abstractRoom.AddEntity(abstr);
         }*/
 
-        if (obj is Spear spear && Random.value < 0.01f)
+        if (obj is Spear spear && UnityEngine.Random.value < 0.01f)
         {
             var tilePos = self.GetTilePosition(spear.firstChunk.pos);
             var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
@@ -73,4 +95,70 @@ sealed class Plugin : BaseUnityPlugin
 
         return orig(self, obj, _, _2, _3, dominance, _4, _5);
     }*/
+
+    // 随机查找当前房间的生物
+    public static Creature? RandomlySelectedCreature(Room room, bool IncludePlayer, Creature? creature, bool IncludeDeadCreature)
+    {
+        List<Creature> creatures = new List<Creature>();
+
+        if (!(room.abstractRoom.creatures.Count > 0))
+        {
+            return null;
+        }
+
+        // 遍历当前房间所有生物
+        foreach (AbstractCreature abstractCreature in room.abstractRoom.creatures)
+        {
+
+            Creature c = abstractCreature.realizedCreature;
+            // 排除检查：玩家、无效引用、自身、或没有身体部位的对象
+            if (!IncludePlayer)
+            {
+                var player1 = c as Player;
+                if (player1 != null)
+                {
+                    continue; // 跳过无效项，继续检查下一个
+                }
+            }
+            if (c == null ||             // 确保生物存在
+                c == creature ||             // 排除自身
+                c.mainBodyChunk == null ||     // 确保有有效的mainBodyChunk
+                c.inShortcut)
+            {
+                continue; // 跳过无效项，继续检查下一个
+            }
+            if (DisabledCreature(c))// 禁用生物
+            {
+                continue; // 跳过无效项，继续检查下一个
+            }
+            if (c.dead == true && !IncludeDeadCreature)// 死亡的生物
+            {
+                continue; // 跳过无效项，继续检查下一个
+            }
+
+            creatures.Add(c);
+        }
+        if (creatures.Count == 0)
+        {
+            Console.WriteLine("MySlugcat:RandomlySelectedCreature: No valid creatures found");
+            return null;
+        }
+        return creatures[UnityEngine.Random.Range(0, creatures.Count)];
+    }
+
+    // 禁用的生物
+    public static bool DisabledCreature(Creature creature)
+    {
+        if (creature == null || creature is Fly || creature is SandGrub || creature is TentaclePlant ||
+            creature is Leech || creature is BigEel || creature is DaddyLongLegs || creature is Overseer ||
+            creature is GarbageWorm || creature is Deer || creature is Inspector || creature is PoleMimic ||
+            creature is BigJellyFish || creature is StowawayBug || creature is Loach || creature is Frog ||
+            creature is SkyWhale || creature is BoxWorm || creature is FireSprite || creature is DrillCrab)
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 }

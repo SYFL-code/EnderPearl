@@ -15,9 +15,18 @@ sealed class CentiShield : Weapon
 
     public CentiShieldAbstract Abstr { get; }
 
+    public static SoundID? soundID_Teleport1;//音效
+    public static SoundID? soundID_Teleport2;//音效
+
     public static void HookTexture()
     {
         Futile.atlasManager.LoadAtlas("icon_CentiShield");
+    }
+    public static void HookSound()
+    {
+        //加载音效
+        soundID_Teleport1 = new SoundID("SNDTeleport1", true);
+        soundID_Teleport2 = new SoundID("SNDTeleport2", true);
     }
 
     public CentiShield(CentiShieldAbstract abstr, Vector2 pos) : base(abstr, abstr.world)
@@ -40,7 +49,7 @@ sealed class CentiShield : Weapon
         gravity = 0.65f; // 重力
         bounce = 0.1f; // 弹力
         surfaceFriction = 0.1f; // 表面摩擦力
-        collisionLayer = 2; // 层碰撞
+        collisionLayer = 1; // 层碰撞
         waterFriction = 0.92f; // 水摩擦
         buoyancy = 0.35f; // 浮力
 
@@ -56,13 +65,44 @@ sealed class CentiShield : Weapon
         Destroy();
     }
 
-    public void Explode()
+    public bool Explode()
     {
         if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
         {
+            for (int i = 0; i < UnityEngine.Random.Range(15, 30); i++)
+            {
+                thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, true));
+            }
+
             Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
 
+            if (soundID_Teleport1 != null && soundID_Teleport2 != null)
+            {
+                if (1 == UnityEngine.Random.Range(1, 3))
+                    thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
+                else
+                    thrownBy.room.PlaySound(soundID_Teleport2, thrownBy.mainBodyChunk.pos);
+            }
+
+            for (int i = 0; i < UnityEngine.Random.Range(15, 30); i++)
+            {
+                thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, false));
+            }
+
+            Shatter();
+            return true;
         }
+        else if (room != null)
+        {
+            Creature? creature = Plugin.RandomlySelectedCreature(room, true, null, false);
+            if (creature != null && creature.room != null && !creature.inShortcut)
+            {
+                thrownBy = creature;
+                return Explode();
+            }
+        }
+        Shatter();
+        return false;
     }
 
     public override void Update(bool eu)
@@ -74,13 +114,7 @@ sealed class CentiShield : Weapon
             this.burn -= 0.033333335f;
             if (this.burn <= 0f)
             {
-                if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
-                {
-                    Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
-                    //WindList.WindExplosioListAdd(room, thrownBy, firstChunk.pos, true);
-                    //使武器消失
-                    Shatter();
-                }
+                Explode();
 
             }
         }
@@ -102,13 +136,7 @@ sealed class CentiShield : Weapon
         }
         if (result.obj != null)
         {
-            if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
-            {
-                Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
-            }
-            //WindList.WindExplosioListAdd(room, thrownBy, firstChunk.pos, true);
-            //使武器消失
-            Shatter();
+            Explode();
         }
 
         return true;
@@ -118,13 +146,7 @@ sealed class CentiShield : Weapon
     {
         if (this.ignited)
         {
-            if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
-            {
-                Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
-            }
-            //WindList.WindExplosioListAdd(room, thrownBy, firstChunk.pos, true);
-            //使武器消失
-            Shatter();
+            Explode();
         }
 
         base.TerrainImpact(chunk, direction, speed, firstContact);
@@ -135,14 +157,8 @@ sealed class CentiShield : Weapon
         base.WeaponDeflect(inbetweenPos, deflectDir, bounceSpeed);
         if (UnityEngine.Random.value < 0.5f)
         {
-            if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
-            {
-                Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
-                //WindList.WindExplosioListAdd(room, thrownBy, firstChunk.pos, true);
-                //使武器消失
-                Shatter();
-                return;
-            }
+            Explode();
+            return;
         }
         this.ignited = true;
         this.InitiateBurn();
@@ -150,10 +166,10 @@ sealed class CentiShield : Weapon
 
     public override void HitByWeapon(Weapon weapon)
     {
-        if (weapon.mode == Weapon.Mode.Thrown && this.thrownBy == null && weapon.thrownBy != null)
+        /*if (weapon.mode == Weapon.Mode.Thrown && this.thrownBy == null && weapon.thrownBy != null)
         {
             this.thrownBy = weapon.thrownBy;
-        }
+        }*/
         base.HitByWeapon(weapon);
         this.InitiateBurn();
     }
@@ -163,10 +179,10 @@ sealed class CentiShield : Weapon
         base.HitByExplosion(hitFac, explosion, hitChunk);
         if (UnityEngine.Random.value < hitFac)
         {
-            if (this.thrownBy == null && explosion != null)
+            /*if (this.thrownBy == null && explosion != null)
             {
                 this.thrownBy = explosion.killTagHolder;
-            }
+            }*/
             this.InitiateBurn();
         }
     }
@@ -182,7 +198,7 @@ sealed class CentiShield : Weapon
         if (this.burn == 0f)
         {
             this.burn = UnityEngine.Random.value;
-            this.room.PlaySound(SoundID.Fire_Spear_Ignite, base.firstChunk, false, 0.5f, 1.4f);
+            //this.room.PlaySound(SoundID.Fire_Spear_Ignite, base.firstChunk, false, 0.5f, 1.4f);
             base.firstChunk.vel += Custom.RNV() * UnityEngine.Random.value * 6f;
             return;
         }
