@@ -27,9 +27,9 @@ using Watcher;
 #pragma warning disable CS0618 // Type or member is obsolete 类型或成员已过时
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
-namespace CentiShields;
+namespace EnderPearl;
 
-[BepInPlugin("org.dual.centishields", nameof(CentiShields), "1.1.0")]
+[BepInPlugin("org.dual.EnderPearl", nameof(EnderPearl), "1.1.0")]
 sealed class Plugin : BaseUnityPlugin
 {
     public void OnEnable()

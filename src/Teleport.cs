@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace CentiShields
+namespace EnderPearl
 {
     public static class Teleport
     {

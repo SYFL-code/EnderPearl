@@ -6,7 +6,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-namespace CentiShields
+namespace EnderPearl
 {
     public class ParticleEffect : CosmeticSprite
     {
@@ -39,7 +39,7 @@ namespace CentiShields
             Futile.atlasManager.LoadAtlas("atlases/snow6");
             Futile.atlasManager.LoadAtlas("atlases/snow7");
             //加载贴图
-            Futile.atlasManager.LoadAtlas("atlases/Particle1");
+            /*Futile.atlasManager.LoadAtlas("atlases/Particle1");
             Futile.atlasManager.LoadAtlas("atlases/Particle2");
             Futile.atlasManager.LoadAtlas("atlases/Particle3");
             Futile.atlasManager.LoadAtlas("atlases/Particle4");
@@ -47,12 +47,42 @@ namespace CentiShields
             Futile.atlasManager.LoadAtlas("atlases/Particle6");
             Futile.atlasManager.LoadAtlas("atlases/Particle7");
             Futile.atlasManager.LoadAtlas("atlases/Particle8");
-            Futile.atlasManager.LoadAtlas("atlases/Particle9");
+            Futile.atlasManager.LoadAtlas("atlases/Particle9");*/
         }
 
         public ParticleEffect(Vector2 setPos, bool reverse)
         {
             this.reverse = reverse;
+            this.CenterPos = setPos;
+
+            if (reverse)
+            {
+                // 修改1：在远处生成粒子（离中心位置较远）
+                float angle = UnityEngine.Random.Range(0f, Mathf.PI * 2);
+                float distance = UnityEngine.Random.Range(100f, 300f); // 加大距离确保从外向内
+
+                pos = setPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
+
+                // 修改2：反转方向计算逻辑（使用 pos - setPos 来获得正确的向内速度）
+                direction = (CenterPos - pos).normalized;
+                vel = direction * UnityEngine.Random.Range(15f, 25f); // 适当提高速度
+            }
+            else
+            {
+                // 保持原来的放射状逻辑
+                Vector2 vector;
+                vector.x = UnityEngine.Random.Range(-1.5f, 0f) * (UnityEngine.Random.Range(0, 2) * 2 - 1);
+                vector.y = UnityEngine.Random.Range(-1.5f, 0f) * (UnityEngine.Random.Range(0, 2) * 2 - 1);
+
+                pos = setPos + vector;
+                direction = (CenterPos - pos).normalized;
+                vel = -direction * UnityEngine.Random.Range(5f, 20f);
+            }
+
+            lifeTime = lifeTime_max;
+            lastPos = pos;  // 修正：初始化 lastPos 为当前 pos
+
+            /*this.reverse = reverse;
 
             Vector2 vector;
             if (reverse)
@@ -84,7 +114,7 @@ namespace CentiShields
             }
 
             lifeTime = lifeTime_max;
-            lastPos = setPos;
+            lastPos = setPos;*/
         }
 
         /*public ParticleEffect(Vector2 pos, Vector2 decVel, bool reverse = false)
@@ -173,7 +203,32 @@ namespace CentiShields
                 if (lightSource.slatedForDeletetion || lightSource.room != room)
                     lightSource = null;
             }
-            if (lifeTime > 0)
+
+            // 修改3：优化消失条件，添加距离检测
+            float distanceToCenter = Vector2.Distance(pos, CenterPos);
+
+            if (reverse)
+            {
+                // 当粒子接近中心时消失
+                if (distanceToCenter < 10f || lifeTime <= 0) // 适当增加消失半径
+                {
+                    Disappear();
+                }
+                else
+                {
+                    // 增加向中心加速效果
+                    vel += (CenterPos - pos).normalized * 0.5f;
+                }
+            }
+            else
+            {
+                if (lifeTime <= 0)
+                    Disappear();
+            }
+
+            lifeTime--;
+
+            /*if (lifeTime > 0)
                 lifeTime--;
             //没到时间但是已经在距离内
             if (reverse && Vector2.Distance(pos, CenterPos) < 4)
@@ -190,7 +245,7 @@ namespace CentiShields
                 }
                 else
                     Disappear();
-            }
+            }*/
         }
 
 

@@ -3,7 +3,7 @@ using Fisobs.Items;
 using Fisobs.Properties;
 using Fisobs.Sandbox;
 
-namespace CentiShields;
+namespace EnderPearl;
 
 sealed class CentiShieldFisob : Fisob
 {

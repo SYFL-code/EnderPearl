@@ -2,7 +2,7 @@
 using System.Linq;
 using static Player;
 
-namespace CentiShields;
+namespace EnderPearl;
 
 sealed class CentiShieldProperties : ItemProperties
 {

@@ -1,7 +1,7 @@
 ﻿using Fisobs.Core;
 using UnityEngine;
 
-namespace CentiShields;
+namespace EnderPearl;
 
 sealed class CentiShieldAbstract : AbstractPhysicalObject
 {
