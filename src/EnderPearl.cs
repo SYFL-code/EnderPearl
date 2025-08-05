@@ -18,8 +18,6 @@ sealed class EnderPearl : Weapon
     public static SoundID? soundID_Teleport1;//音效
     public static SoundID? soundID_Teleport2;//音效
 
-    private FAtlas slimeAtlas;
-
     public static void HookTexture()
     {
         Futile.atlasManager.LoadAtlas("icon_EnderPearl");
@@ -73,22 +71,22 @@ sealed class EnderPearl : Weapon
         {
             for (int i = 0; i < UnityEngine.Random.Range(15, 30); i++)
             {
-                //thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, true));
+                thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, true));
             }
 
             Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
 
-            /*if (soundID_Teleport1 != null && soundID_Teleport2 != null)
+            if (soundID_Teleport1 != null && soundID_Teleport2 != null)
             {
                 if (1 == UnityEngine.Random.Range(1, 3))
                     thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
                 else
                     thrownBy.room.PlaySound(soundID_Teleport2, thrownBy.mainBodyChunk.pos);
-            }*/
+            }
 
             for (int i = 0; i < UnityEngine.Random.Range(15, 30); i++)
             {
-                //thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, false));
+                thrownBy.room.AddObject(new ParticleEffect(thrownBy.mainBodyChunk.pos, false));
             }
 
             Shatter();
