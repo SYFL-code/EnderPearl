@@ -34,7 +34,7 @@ sealed class Plugin : BaseUnityPlugin
 {
     public void OnEnable()
     {
-        Content.Register(new CentiShieldFisob());
+        Content.Register(new EnderPearlFisob());
 
         // Create centi shields when centipedes lose their shells
         // 当蜈蚣失去壳时创建蜈蚣盾牌
@@ -44,8 +44,8 @@ sealed class Plugin : BaseUnityPlugin
         // 手持盾牌时保护玩家免受抓取
         //On.Creature.Grab += CreatureGrab;
 
-        CentiShield.HookTexture();
-        CentiShield.HookSound();
+        EnderPearl.HookTexture();
+        EnderPearl.HookSound();
         ParticleEffect.HookTexture();
     }
 
@@ -54,13 +54,13 @@ sealed class Plugin : BaseUnityPlugin
         /*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
             var tilePos = self.GetTilePosition(shell.pos);
             var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
-            var abstr = new CentiShieldAbstract(self.world, pos, self.game.GetNewID()) {
+            var abstr = new EnderPearlAbstract(self.world, pos, self.game.GetNewID()) {
                 hue = shell.hue,
                 saturation = shell.saturation,
                 scaleX = shell.scaleX,
                 scaleY = shell.scaleY
             };
-            obj = new CentiShield(abstr, shell.pos);
+            obj = new EnderPearl(abstr, shell.pos);
 
             self.abstractRoom.AddEntity(abstr);
         }*/
@@ -69,8 +69,8 @@ sealed class Plugin : BaseUnityPlugin
         {
             var tilePos = self.GetTilePosition(spear.firstChunk.pos);
             var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
-            var abstr = new CentiShieldAbstract(self.world, pos, self.game.GetNewID());
-            obj = new CentiShield(abstr, spear.firstChunk.pos);
+            var abstr = new EnderPearlAbstract(self.world, pos, self.game.GetNewID());
+            obj = new EnderPearl(abstr, spear.firstChunk.pos);
 
             self.abstractRoom.AddEntity(abstr);
         }
@@ -83,8 +83,8 @@ sealed class Plugin : BaseUnityPlugin
         const float maxDistance = 8;
 
         if (obj is Creature grabbed && self is not DropBug) {
-            var grasp = grabbed.grasps?.FirstOrDefault(g => g?.grabbed is CentiShield);
-            if (grasp?.grabbed is CentiShield shield && self.bodyChunks.Any(b => Vector2.Distance(b.pos, shield.firstChunk.pos) - (b.rad + shield.firstChunk.rad) < maxDistance)) {
+            var grasp = grabbed.grasps?.FirstOrDefault(g => g?.grabbed is EnderPearl);
+            if (grasp?.grabbed is EnderPearl shield && self.bodyChunks.Any(b => Vector2.Distance(b.pos, shield.firstChunk.pos) - (b.rad + shield.firstChunk.rad) < maxDistance)) {
                 shield.AllGraspsLetGoOfThisObject(true);
                 shield.Forbid();
                 shield.HitEffect((shield.firstChunk.pos - self.firstChunk.pos).normalized);

@@ -134,10 +134,22 @@ namespace EnderPearl
             //return ParticleName[UnityEngine.Random.Range(0, 9)];
         }
 
+        private readonly CustomAtlases customAtlases;
+
+        private FAtlas ParticleAtlas;
+        private FSprite[] sprites;
+
         public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
+            string ParticleString = GetParticleStringRandom();
+
+            this.ParticleAtlas = this.customAtlases.LoadAtlases(ParticleString);
+
             sLeaser.sprites = new FSprite[1];
-            sLeaser.sprites[0] = new FSprite(GetParticleStringRandom());
+            this.sprites = sLeaser.sprites;
+
+            sLeaser.sprites[0] = (this.sprites[0] = new FSprite(ParticleString, true));
+            //sLeaser.sprites[0] = new FSprite(GetParticleStringRandom());
             FContainer fcontainer = rCam.ReturnFContainer("HUD");
             fcontainer.AddChild(sLeaser.sprites[0]);
         }

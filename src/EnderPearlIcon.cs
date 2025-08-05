@@ -1,0 +1,29 @@
+﻿using Fisobs.Core;
+using UnityEngine;
+
+namespace EnderPearl;
+
+sealed class EnderPearlIcon : Icon
+{
+    // Vanilla only gives you one int field to store all your custom data.
+    // Here, that int field is used to store the shield's hue, scaled by 1000.
+    // So, 0 is red and 70 is orange.
+    public override int Data(AbstractPhysicalObject apo)
+    {
+        return 0;
+        //return apo is EnderPearlAbstract shield ? (int)(shield.hue * 1000f) : 0;
+    }
+
+    public override Color SpriteColor(int data)
+    {
+        //return RWCustom.Custom.HSL2RGB(data / 1000f, 0.65f, 0.4f);
+        return new Color(0.5f, 0.5f, 0.5f, 1f);
+    }
+
+    public override string SpriteName(int data)
+    {
+        // Fisobs autoloads the file in the mod folder named "icon_{Type}.png"
+        // To use that, just remove the png suffix: "icon_EnderPearl"
+        return "icon_EnderPearl";
+    }
+}

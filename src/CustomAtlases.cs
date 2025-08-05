@@ -9,7 +9,7 @@ namespace EnderPearl
     public class CustomAtlases
     {
 
-        /*public FAtlas LoadAtlases(string imageName)
+        public FAtlas LoadAtlases(string imageName)
         {
             Texture2D? texture = this.LoadTexture(imageName);
             return Futile.atlasManager.LoadAtlasFromTexture(imageName, texture, false);
@@ -39,7 +39,7 @@ namespace EnderPearl
                 Debug.LogError("File not found at path: " + text);
             }
             return null;
-        }*/
+        }
 
 
         private string? pluginPath;
