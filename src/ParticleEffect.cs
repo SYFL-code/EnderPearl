@@ -49,7 +49,7 @@ namespace EnderPearl
         private FContainer masterContainer;
 
         public float pixelSize = 2f;
-        private const float maxLifetime = 300f; // 300帧 (5秒)
+        private const float maxLifetime = 480f; // 480帧 
         private float currentLifetime = 0f;
         public bool Destroyed = false;
 
@@ -137,7 +137,7 @@ namespace EnderPearl
 
                 // 速度方向向外扩散
                 particle.velocity = (particle.worldPosition - targetWorldPos).normalized *
-                                   UnityEngine.Random.Range(1f, 8f); // 初始较快速度
+                                   UnityEngine.Random.Range(1f, 5f); // 初始较快速度
             }
 
             // 设置屏幕位置
@@ -309,7 +309,7 @@ namespace EnderPearl
             else
             {
                 // 120+帧：缓慢消失（淡出）
-                float fadePhase = (particle.timer - 120f) / 180f;
+                float fadePhase = (particle.timer - 120f) / 360f;
                 particle.container.alpha = Mathf.Max(0f, 1f - fadePhase);
 
                 // 完全透明后标记为不活跃

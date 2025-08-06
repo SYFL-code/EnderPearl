@@ -1,2 +1,5 @@
 [ADD]SNDTeleport1 : Teleport1/vol=0.6
 [ADD]SNDTeleport2 : Teleport2/vol=0.6
+[ADD]SNDfreeze : icespearFreeze/vol=0.6
+[ADD]SNDiceExplode : iceExplode/vol=0.6
+[ADD]SNDiceShieldCraft : iceShieldCraft/vol=0.4

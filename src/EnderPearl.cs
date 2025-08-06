@@ -1,4 +1,5 @@
 ﻿using RWCustom;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace EnderPearl;
 
 sealed class EnderPearl : Weapon
 {
-	private static float Rand => Random.value;
+	private static float Rand => UnityEngine.Random.value;
 
 	public static float scale = 1f;
 
@@ -19,6 +20,9 @@ sealed class EnderPearl : Weapon
 	public static SoundID? soundID_Teleport1;//音效
 	public static SoundID? soundID_Teleport2;//音效
 
+	public static SoundID soundID_iceExplode;//音效
+	public static SoundID soundID_iceShieldCraft;//音效
+
 	public static List<ParticleEffect> PE = new List<ParticleEffect>();
 
 	public static void HookTexture()
@@ -30,6 +34,9 @@ sealed class EnderPearl : Weapon
 		//加载音效
 		soundID_Teleport1 = new SoundID("SNDTeleport1", true);
 		soundID_Teleport2 = new SoundID("SNDTeleport2", true);
+		//加载音效
+		soundID_iceExplode = new SoundID("SNDiceExplode", true);
+		soundID_iceShieldCraft = new SoundID("SNDiceShieldCraft", true);
 	}
 
 	public EnderPearl(EnderPearlAbstract abstr, Vector2 pos) : base(abstr, abstr.world)
@@ -68,29 +75,35 @@ sealed class EnderPearl : Weapon
 		Destroy();
 	}
 
-	public static void SLeaser_Update(On.RoomCamera.SpriteLeaser.orig_Update orig, RoomCamera.SpriteLeaser self, float timeStacker, RoomCamera rCam, Vector2 cameraPos)
+	private static readonly object _locker = new object();
+
+	public static void RainWorld_Update(On.RainWorld.orig_Update orig, RainWorld self)
 	{
-		orig(self, timeStacker, rCam, cameraPos);
+		orig(self);
 
-		if (PE != null && PE.Count > 0)
+		lock (_locker)
 		{
-			for (int i = 0; i < PE.Count; i++)
+			if (PE != null && PE.Count > 0)
 			{
-				if (PE[i] != null)
+				for (int i = 0; i < PE.Count; i++)
 				{
-					PE[i].Update();
+					if (PE[i] != null)
+					{
+						PE[i].Update();
+					}
 				}
-			}
 
-			for (int i = PE.Count - 1; i >= 0; i--)
-			{
-				if (PE[i] == null || (PE[i] != null && PE[i].Destroyed))
+				for (int i = PE.Count - 1; i >= 0; i--)
 				{
-					PE.RemoveAt(i);
+					if (PE[i] == null || (PE[i] != null && PE[i].Destroyed))
+					{
+						PE.RemoveAt(i);
+					}
 				}
-			}
 
+			}
 		}
+
 	}
 
 	public bool Explode()
@@ -108,6 +121,8 @@ sealed class EnderPearl : Weapon
 				else
 					thrownBy.room.PlaySound(soundID_Teleport2, thrownBy.mainBodyChunk.pos);
 			}
+			thrownBy.room.PlaySound(soundID_iceShieldCraft, thrownBy.mainBodyChunk.pos);
+			thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
 
 			PE.Add(new ParticleEffect(thrownBy.room, thrownBy.mainBodyChunk.pos, false));
 

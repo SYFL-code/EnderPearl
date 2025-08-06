@@ -34,23 +34,32 @@ sealed class Plugin : BaseUnityPlugin
 {
 	public void OnEnable()
 	{
-		Content.Register(new EnderPearlFisob());
+        On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+
+        Content.Register(new EnderPearlFisob());
 
 		// Create centi shields when centipedes lose their shells
 		// 当蜈蚣失去壳时创建蜈蚣盾牌
 		On.Room.AddObject += RoomAddObject;
-		On.RoomCamera.SpriteLeaser.Update += EnderPearl.SLeaser_Update;
+        On.RainWorld.Update += EnderPearl.RainWorld_Update;
 
-		// Protect the player from grabs while holding a shield
-		// 手持盾牌时保护玩家免受抓取
-		//On.Creature.Grab += CreatureGrab;
+        // Protect the player from grabs while holding a shield
+        // 手持盾牌时保护玩家免受抓取
+        //On.Creature.Grab += CreatureGrab;
 
-		EnderPearl.HookTexture();
-		EnderPearl.HookSound();
-		ParticleEffect1.HookTexture();
 	}
 
-	void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
+    private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+	{
+        orig.Invoke(self);
+
+        EnderPearl.HookTexture();
+        EnderPearl.HookSound();
+        ParticleEffect1.HookTexture();
+    }
+
+
+    void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
 	{
 		/*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
 			var tilePos = self.GetTilePosition(shell.pos);
