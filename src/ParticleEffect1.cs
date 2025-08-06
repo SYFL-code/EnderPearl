@@ -50,7 +50,7 @@ namespace EnderPearl
             Futile.atlasManager.LoadAtlas("atlases/Particle9");*/
         }
 
-        public ParticleEffect(Vector2 setPos, bool reverse)
+        public ParticleEffect1(Vector2 setPos, bool reverse)
         {
             this.reverse = reverse;
             this.CenterPos = setPos;
