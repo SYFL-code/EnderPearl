@@ -53,7 +53,7 @@ sealed class Plugin : BaseUnityPlugin
         //On.Creature.Grab += CreatureGrab;
         EnderPearl.HookTexture();
 
-        //Gives slugcat the ability to throw Ender Pearl in any direction.
+        //Gives slugcat the ability to throw Ender Pearl in any direction
         //赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
         On.Player.ctor += Player_ctor;
 		On.Player.Update += Player_Update;
