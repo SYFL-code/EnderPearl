@@ -46,14 +46,14 @@ sealed class Plugin : BaseUnityPlugin
         // Protect the player from grabs while holding a shield
         // 手持盾牌时保护玩家免受抓取
         //On.Creature.Grab += CreatureGrab;
+        EnderPearl.HookTexture();
 
-	}
+    }
 
     private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
         orig.Invoke(self);
 
-        EnderPearl.HookTexture();
         EnderPearl.HookSound();
         ParticleEffect1.HookTexture();
     }

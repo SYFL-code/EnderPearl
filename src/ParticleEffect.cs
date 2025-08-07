@@ -1,32 +1,4 @@
-﻿/*using On;
-using IL;
-using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using Mono.Cecil;
-using MoreSlugcats;
-using RWCustom;
-using HUD;
-using Smoke;
-using static PhysicalObject;
-using UnityEngine;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Collections;
-using SlugBase.Features;
-using System.Diagnostics;
-using ImprovedInput;
-using System.Linq;
-using RewiredConsts;
-using Menu.Remix;
-using MonoMod.RuntimeDetour;
-using Watcher;
-using static MonoMod.InlineRT.MonoModRule;
-using Kittehface.Framework20;
-using System.Threading;
-using System.Linq.Expressions;*/
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using RWCustom;
 using HUD;
@@ -447,8 +419,37 @@ namespace EnderPearl
 
 
 
+/*using On;
+using IL;
+using System;
+using System.Drawing;
+using System.Threading.Tasks;
+using Mono.Cecil;
+using MoreSlugcats;
+using RWCustom;
+using HUD;
+using Smoke;
+using static PhysicalObject;
+using UnityEngine;
+using System.Globalization;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Collections;
+using SlugBase.Features;
+using System.Diagnostics;
+using ImprovedInput;
+using System.Linq;
+using RewiredConsts;
+using Menu.Remix;
+using MonoMod.RuntimeDetour;
+using Watcher;
+using static MonoMod.InlineRT.MonoModRule;
+using Kittehface.Framework20;
+using System.Threading;
+using System.Linq.Expressions;
 
-/*namespace EnderPearl
+
+namespace EnderPearl
 {
 	public class ParticleEffect
 	{
