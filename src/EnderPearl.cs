@@ -20,8 +20,8 @@ sealed class EnderPearl : Weapon
 	public static SoundID? soundID_Teleport1;//音效
 	public static SoundID? soundID_Teleport2;//音效
 
-	public static SoundID soundID_iceExplode;//音效
-	public static SoundID soundID_iceShieldCraft;//音效
+	/*public static SoundID soundID_iceExplode;//音效
+	public static SoundID soundID_iceShieldCraft;//音效*/
 
 	public static List<ParticleEffect> PE = new List<ParticleEffect>();
 
@@ -35,8 +35,8 @@ sealed class EnderPearl : Weapon
 		soundID_Teleport1 = new SoundID("SNDTeleport1", true);
 		soundID_Teleport2 = new SoundID("SNDTeleport2", true);
 		//加载音效
-		soundID_iceExplode = new SoundID("SNDiceExplode", true);
-		soundID_iceShieldCraft = new SoundID("SNDiceShieldCraft", true);
+		/*soundID_iceExplode = new SoundID("SNDiceExplode", true);
+		soundID_iceShieldCraft = new SoundID("SNDiceShieldCraft", true);*/
 	}
 
 	public EnderPearl(EnderPearlAbstract abstr, Vector2 pos) : base(abstr, abstr.world)
@@ -106,8 +106,17 @@ sealed class EnderPearl : Weapon
 
 	}
 
-	public bool Explode()
+	// 修改方法签名，添加递归深度参数
+	public bool Explode(int depth = 0)
 	{
+		// 添加深度限制
+		const int MAX_RECURSION_DEPTH = 5;
+		if (depth > MAX_RECURSION_DEPTH)
+		{
+			Shatter();
+			return false;
+		}
+
 		if (thrownBy != null && (thrownBy.room != null && !thrownBy.inShortcut))
 		{
 			PE.Add(new ParticleEffect(thrownBy.room, thrownBy.mainBodyChunk.pos, true));
@@ -121,8 +130,8 @@ sealed class EnderPearl : Weapon
 				else
 					thrownBy.room.PlaySound(soundID_Teleport2, thrownBy.mainBodyChunk.pos);
 			}
-			thrownBy.room.PlaySound(soundID_iceShieldCraft, thrownBy.mainBodyChunk.pos);
-			thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
+			//thrownBy.room.PlaySound(soundID_iceShieldCraft, thrownBy.mainBodyChunk.pos);
+			//thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
 
 			PE.Add(new ParticleEffect(thrownBy.room, thrownBy.mainBodyChunk.pos, false));
 
@@ -135,7 +144,7 @@ sealed class EnderPearl : Weapon
 			if (creature != null && creature.room != null && !creature.inShortcut)
 			{
 				thrownBy = creature;
-				return Explode();
+				return Explode(depth + 1);
 			}
 		}
 		Shatter();
@@ -175,11 +184,11 @@ sealed class EnderPearl : Weapon
 
 		vibrate = 20;
 		ChangeMode(Mode.Free);
-		if (result.obj is Creature creature)
+		/*if (result.obj is Creature creature)
 		{
 			//将生物击退
 			creature.firstChunk.vel += firstChunk.vel.normalized;
-		}
+		}*/
 		if (result.obj != null)
 		{
 			Explode();

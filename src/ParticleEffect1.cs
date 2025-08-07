@@ -1,4 +1,4 @@
-﻿using RWCustom;
+﻿/*using RWCustom;
 using System.Diagnostics;
 using System;
 using Watcher;
@@ -39,7 +39,7 @@ namespace EnderPearl
             Futile.atlasManager.LoadAtlas("atlases/snow6");
             Futile.atlasManager.LoadAtlas("atlases/snow7");
             //加载贴图
-            /*Futile.atlasManager.LoadAtlas("atlases/Particle1");
+            *//*Futile.atlasManager.LoadAtlas("atlases/Particle1");
             Futile.atlasManager.LoadAtlas("atlases/Particle2");
             Futile.atlasManager.LoadAtlas("atlases/Particle3");
             Futile.atlasManager.LoadAtlas("atlases/Particle4");
@@ -47,7 +47,7 @@ namespace EnderPearl
             Futile.atlasManager.LoadAtlas("atlases/Particle6");
             Futile.atlasManager.LoadAtlas("atlases/Particle7");
             Futile.atlasManager.LoadAtlas("atlases/Particle8");
-            Futile.atlasManager.LoadAtlas("atlases/Particle9");*/
+            Futile.atlasManager.LoadAtlas("atlases/Particle9");*//*
         }
 
         public ParticleEffect1(Vector2 setPos, bool reverse)
@@ -82,7 +82,7 @@ namespace EnderPearl
             lifeTime = lifeTime_max;
             lastPos = pos;  // 修正：初始化 lastPos 为当前 pos
 
-            /*this.reverse = reverse;
+            *//*this.reverse = reverse;
 
             Vector2 vector;
             if (reverse)
@@ -114,10 +114,10 @@ namespace EnderPearl
             }
 
             lifeTime = lifeTime_max;
-            lastPos = setPos;*/
+            lastPos = setPos;*//*
         }
 
-        /*public ParticleEffect(Vector2 pos, Vector2 decVel, bool reverse = false)
+        *//*public ParticleEffect(Vector2 pos, Vector2 decVel, bool reverse = false)
         {
             this.reverse = reverse;
             lifeTime = lifeTime_max;
@@ -126,7 +126,7 @@ namespace EnderPearl
             vel.x = UnityEngine.Random.Range(-10f, 10f);
             vel.y = UnityEngine.Random.Range(-10f, 10f);
             vel -= decVel;
-        }*/
+        }*//*
 
         public static string GetParticleStringRandom()
         {
@@ -167,12 +167,12 @@ namespace EnderPearl
                 sLeaser.sprites[0].alpha = lifeTime / (lifeTime_max * disappearTime);
         }
 
-        /*private bool DisappearDistance()
+        *//*private bool DisappearDistance()
         {
             //Vector2 dstPos = getTracePos(getTracePos_arg1);
             Vector2 dstPos = CenterPos;
             return (dstPos - pos).sqrMagnitude <= Mathf.Max(1.0f, vel.sqrMagnitude);
-        }*/
+        }*//*
 
         private void Disappear()
         {
@@ -185,7 +185,7 @@ namespace EnderPearl
         {
             base.Update(eu);
 
-            /*bool ad = reverse && getTracePos != null;
+            *//*bool ad = reverse && getTracePos != null;
             if (ad)
             {
                 //改变能量方向
@@ -193,7 +193,7 @@ namespace EnderPearl
                 //追踪坐标
                 Vector2 v1 = (dstPos - pos).normalized;
                 vel = vel.magnitude * v1;
-            }*/
+            }*//*
 
             //vel *= 0.75f * lifeTime / lifeTime_max;
 
@@ -240,7 +240,7 @@ namespace EnderPearl
 
             lifeTime--;
 
-            /*if (lifeTime > 0)
+            *//*if (lifeTime > 0)
                 lifeTime--;
             //没到时间但是已经在距离内
             if (reverse && Vector2.Distance(pos, CenterPos) < 4)
@@ -257,7 +257,7 @@ namespace EnderPearl
                 }
                 else
                     Disappear();
-            }*/
+            }*//*
         }
 
 
@@ -265,4 +265,4 @@ namespace EnderPearl
 
 
     }
-}
+}*/

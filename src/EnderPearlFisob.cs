@@ -25,7 +25,7 @@ sealed class EnderPearlFisob : Fisob
 
         SandboxPerformanceCost = new(linear: 0.35f, exponential: 0f);
 
-        RegisterUnlock(AnEnderPearl, parent: MultiplayerUnlocks.SandboxUnlockID.Rock, data: 0);
+        RegisterUnlock(AnEnderPearl);
         //RegisterUnlock(RedEnderPearl, parent: MultiplayerUnlocks.SandboxUnlockID.RedCentipede, data: 0);
     }
 

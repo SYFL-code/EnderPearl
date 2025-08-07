@@ -21,6 +21,7 @@ using RewiredConsts;
 using Menu.Remix;
 using MonoMod.RuntimeDetour;
 using Watcher;
+using System.Runtime.CompilerServices;
 
 
 
@@ -32,7 +33,10 @@ namespace EnderPearl;
 [BepInPlugin("org.dual.EnderPearl", nameof(EnderPearl), "1.1.0")]
 sealed class Plugin : BaseUnityPlugin
 {
-	public void OnEnable()
+
+    private static ConditionalWeakTable<Player, StrongBox<Vector2>> LastThrowDirection = new ConditionalWeakTable<Player, StrongBox<Vector2>>();
+
+    public void OnEnable()
 	{
         On.RainWorld.OnModsInit += RainWorld_OnModsInit;
 
@@ -41,6 +45,7 @@ sealed class Plugin : BaseUnityPlugin
 		// Create centi shields when centipedes lose their shells
 		// 当蜈蚣失去壳时创建蜈蚣盾牌
 		On.Room.AddObject += RoomAddObject;
+        On.Player.CanBeSwallowed += Player_CanBeSwallowed;
         On.RainWorld.Update += EnderPearl.RainWorld_Update;
 
         // Protect the player from grabs while holding a shield
@@ -48,6 +53,11 @@ sealed class Plugin : BaseUnityPlugin
         //On.Creature.Grab += CreatureGrab;
         EnderPearl.HookTexture();
 
+        //Gives slugcat the ability to throw Ender Pearl in any direction.
+        //赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
+        On.Player.ctor += Player_ctor;
+		On.Player.Update += Player_Update;
+		On.Player.ThrowObject += Player_ThrowObject;
     }
 
     private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
@@ -55,7 +65,12 @@ sealed class Plugin : BaseUnityPlugin
         orig.Invoke(self);
 
         EnderPearl.HookSound();
-        ParticleEffect1.HookTexture();
+        //ParticleEffect1.HookTexture();
+    }
+
+    public void OnDisable()
+    {
+        LastThrowDirection = null;
     }
 
 
@@ -88,7 +103,19 @@ sealed class Plugin : BaseUnityPlugin
 		orig(self, obj);
 	}
 
-	/*bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
+    public static bool Player_CanBeSwallowed(On.Player.orig_CanBeSwallowed orig, Player player, PhysicalObject testObj)
+    {
+        if ((!ModManager.MSC || !(player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Spear)) && testObj is EnderPearl)
+        {
+            return true;
+        }
+        else
+        {
+            return orig(player, testObj);
+        }
+    }
+
+    /*bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
 	{
 		const float maxDistance = 8;
 
@@ -106,8 +133,65 @@ sealed class Plugin : BaseUnityPlugin
 		return orig(self, obj, _, _2, _3, dominance, _4, _5);
 	}*/
 
-	// 随机查找当前房间的生物
-	public static Creature? RandomlySelectedCreature(Room room, bool IncludePlayer, Creature? creature, bool IncludeDeadCreature)
+	private void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
+	{
+        orig.Invoke(self, abstractCreature, world);
+        StrongBox<Vector2> strongBox;
+        if (!LastThrowDirection.TryGetValue(self, out strongBox))
+        {
+            LastThrowDirection.Add(self, new StrongBox<Vector2>());
+        }
+    }
+
+    private void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
+    {
+        Player.InputPackage[] input = self.input;
+        if (input != null && input.Length != 0)
+        {
+            ref Player.InputPackage ptr = ref input[0];
+            Vector2 normalized = new Vector2((float)ptr.x, (float)ptr.y).normalized;
+            StrongBox<Vector2> strongBox;
+            if (LastThrowDirection.TryGetValue(self, out strongBox) && normalized.magnitude > 0f)
+            {
+                strongBox.Value = normalized;
+            }
+        }
+        orig.Invoke(self, eu);
+    }
+
+    private void Player_ThrowObject(On.Player.orig_ThrowObject orig, Player self, int grasp, bool eu)
+    {
+        Creature.Grasp[] grasps = self.grasps;
+        object? obj;
+        if (grasps == null)
+        {
+            obj = null;
+        }
+        else
+        {
+            Creature.Grasp grasp2 = grasps[grasp];
+            obj = ((grasp2 != null) ? grasp2.grabbed : null);
+        }
+        orig.Invoke(self, grasp, eu);
+        Weapon? weapon = obj as Weapon;
+        StrongBox<Vector2> strongBox;
+        if (weapon != null  && weapon is EnderPearl enderPearl && LastThrowDirection.TryGetValue(self, out strongBox))
+        {
+            Vector2 value = strongBox.Value;
+            BodyChunk[] bodyChunks = enderPearl.bodyChunks;
+            Vector2 pos = self.mainBodyChunk.pos + value * 10f;
+            foreach (BodyChunk bodyChunk in bodyChunks)
+            {
+                bodyChunk.pos = pos;
+                bodyChunk.vel = value * 40f;
+            }
+            enderPearl.setRotation = new Vector2?(value);
+        }
+    }
+
+
+    // 随机查找当前房间的生物
+    public static Creature? RandomlySelectedCreature(Room room, bool IncludePlayer, Creature? creature, bool IncludeDeadCreature)
 	{
 		List<Creature> creatures = new List<Creature>();
 

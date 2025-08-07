@@ -1,11 +1,10 @@
 ﻿{
   "id": "Ender_Pearl.LH",
-  "name": "EnderPearl",
+  "name": "Ender Pearl",
   "version": "1.1.0",
   "authors": "LH",
-  "description": "EnderPearl<LINE>EnderPearl",
+  "description": "Added the Ender Pearl from Minecraft to Rain world.<LINE>Code at https://github.com/SYFL-code/EnderPearl",
   "requirements": [ "fisobs" ],
   "requirements_names": [ "Fisobs" ],
   "tags": [ "Items" ],
-  "checksum_override_version": true
 }

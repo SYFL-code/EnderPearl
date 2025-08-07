@@ -5,416 +5,453 @@ using HUD;
 
 namespace EnderPearl
 {
-    public class ParticleEffect
-    {
-        private class Particle
-        {
-            public FContainer container;
-            public Vector2 velocity;
-            public Vector2 worldPosition;
-            public LightSource lightSource;
-            public float timer = 0f;
-            public bool isActive = true;
-        }
+	public class ParticleEffect
+	{
+		private class Particle
+		{
+			public FContainer container;
+			public Vector2 velocity;
+			public Vector2 worldPosition;
+			public LightSource lightSource;
+			public float timer = 0f;
+			public bool isActive = true;
+		}
 
-        private List<Particle> particles = new List<Particle>();
-        private FContainer masterContainer;
+		private List<Particle> particles = new List<Particle>();
+		private FContainer masterContainer;
 
-        public float pixelSize = 2f;
-        private const float maxLifetime = 480f; // 480帧 
-        private float currentLifetime = 0f;
-        public bool Destroyed = false;
+		public float pixelSize = 2f;
+		private const float maxLifetime = 90f; // 90帧 
+		private float currentLifetime = 0f;
+		public bool Destroyed = false;
 
-        private Vector2 targetWorldPos;
-        private bool reverse;
-        private Room room;
+		private Vector2 targetWorldPos;
+		private bool reverse;
+		private Room room;
 
-        public ParticleEffect(Room room, Vector2 targetWorldPos, bool reverse)
-        {
-            this.targetWorldPos = targetWorldPos;
-            this.reverse = reverse;
-            this.room = room;
+		public ParticleEffect(Room room, Vector2 targetWorldPos, bool reverse)
+		{
+			this.targetWorldPos = targetWorldPos;
+			this.reverse = reverse;
+			this.room = room;
 
-            try
-            {
-                // 创建主容器
-                masterContainer = new FContainer();
-                Futile.stage.AddChild(masterContainer);
+			try
+			{
+				// 创建主容器
+				masterContainer = new FContainer();
+				Futile.stage.AddChild(masterContainer);
 
-                int particleCount = UnityEngine.Random.Range(15, 30);
+				int particleCount = UnityEngine.Random.Range(15, 30);
 
-                for (int i = 0; i < particleCount; i++)
-                {
-                    CreateParticle();
-                }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"粒子效果初始化失败: {e.Message}");
-                Destroy();
-                throw;
-            }
-        }
+				for (int i = 0; i < particleCount; i++)
+				{
+					CreateParticle();
+				}
+			}
+			catch (System.Exception e)
+			{
+				Debug.LogError($"粒子效果初始化失败: {e.Message}");
+				Destroy();
+				throw;
+			}
+		}
 
-        private void CreateParticle()
-        {
-            Particle particle = new Particle();
-            particle.container = new FContainer();
-            masterContainer.AddChild(particle.container);
-            particle.container.alpha = 0f; // 初始透明
-            particle.container.isVisible = true;
+		private void CreateParticle()
+		{
+			Particle particle = new Particle();
+			particle.container = new FContainer();
+			masterContainer.AddChild(particle.container);
+			particle.container.alpha = 0f; // 初始透明
+			particle.container.isVisible = true;
 
-            // 生成随机粒子形状
-            GenerateRandomParticle(particle.container);
-            particle.container.rotation = 90 * UnityEngine.Random.Range(0, 4);
+			// 生成随机粒子形状
+			GenerateRandomParticle(particle.container);
+			particle.container.rotation = 90 * UnityEngine.Random.Range(0, 4);
 
-            // 初始化位置和速度
-            InitializeParticlePosition(particle);
+			// 初始化位置和速度
+			InitializeParticlePosition(particle);
 
-            particles.Add(particle);
-        }
+			particles.Add(particle);
+		}
 
-        private void InitializeParticlePosition(Particle particle)
-        {
-            Vector2 cameraPos = room.game.cameras[0].pos;
+		private void InitializeParticlePosition(Particle particle)
+		{
+			Vector2 cameraPos = room.game.cameras[0].pos;
 
-            float TWO_PT = Mathf.PI * 2f;
-            if (reverse)
-            {
-                // 反向粒子：从远处向目标汇聚
-                float angle = UnityEngine.Random.Range(0f, TWO_PT);
-                float radius = Mathf.Sqrt(UnityEngine.Random.Range(30f * 30f, 300f * 300f));
+			float TWO_PT = Mathf.PI * 2f;
+			if (reverse)
+			{
+				// 反向粒子：从远处向目标汇聚
+				float angle = UnityEngine.Random.Range(0f, TWO_PT);
+				float radius = Mathf.Sqrt(UnityEngine.Random.Range(30f * 30f, 300f * 300f));
 
-                // 世界坐标位置
-                particle.worldPosition = targetWorldPos + new Vector2(
-                    Mathf.Cos(angle),
-                    Mathf.Sin(angle)
-                ) * radius;
+				// 世界坐标位置
+				particle.worldPosition = targetWorldPos + new Vector2(
+					Mathf.Cos(angle),
+					Mathf.Sin(angle)
+				) * radius;
 
-                // 速度方向指向目标
-                particle.velocity = (targetWorldPos - particle.worldPosition).normalized *
-                                   UnityEngine.Random.Range(radius / 100, radius / 50); // 初始较快速度
-            }
-            else
-            {
-                // 正向粒子：从目标向外扩散
-                float angle = UnityEngine.Random.Range(0f, TWO_PT);
-                float radius = UnityEngine.Random.Range(0f, 30f);
+				// 速度方向指向目标
+				particle.velocity = (targetWorldPos - particle.worldPosition).normalized *
+								   UnityEngine.Random.Range(radius / 100, radius / 50); // 初始较快速度
+			}
+			else
+			{
+				// 正向粒子：从目标向外扩散
+				float angle = UnityEngine.Random.Range(0f, TWO_PT);
+				float radius = UnityEngine.Random.Range(0f, 30f);
 
-                // 世界坐标位置
-                particle.worldPosition = targetWorldPos + new Vector2(
-                    Mathf.Cos(angle),
-                    Mathf.Sin(angle)
-                ) * radius;
+				// 世界坐标位置
+				particle.worldPosition = targetWorldPos + new Vector2(
+					Mathf.Cos(angle),
+					Mathf.Sin(angle)
+				) * radius;
 
-                // 速度方向向外扩散
-                particle.velocity = (particle.worldPosition - targetWorldPos).normalized *
-                                   UnityEngine.Random.Range(1f, 5f); // 初始较快速度
-            }
+				// 速度方向向外扩散
+				particle.velocity = (particle.worldPosition - targetWorldPos).normalized *
+								   UnityEngine.Random.Range(1f, 5f); // 初始较快速度
+			}
 
-            // 设置屏幕位置
-            UpdateScreenPosition(particle, cameraPos);
-        }
+			// 设置屏幕位置
+			UpdateScreenPosition(particle, cameraPos);
+		}
 
-        public void Update()
-        {
-            if (Destroyed) return;
+		public void Update()
+		{
+			if (Destroyed) return;
 
-            Vector2 cameraPos = room.game.cameras[0].pos;
-            Rect cameraRect = new Rect(
-                cameraPos.x - 1000f,
-                cameraPos.y - 1000f,
-                Custom.rainWorld.options.ScreenSize.x + 2000f,
-                Custom.rainWorld.options.ScreenSize.y + 2000f
-            );
+			Vector2 cameraPos = room.game.cameras[0].pos;
+			Rect cameraRect = new Rect(
+				cameraPos.x - 1000f,
+				cameraPos.y - 1000f,
+				Custom.rainWorld.options.ScreenSize.x + 2000f,
+				Custom.rainWorld.options.ScreenSize.y + 2000f
+			);
 
-            bool anyActive = false;
-            currentLifetime += 1f;
+			bool anyActive = false;
+			currentLifetime += 1f;
 
-            for (int i = particles.Count - 1; i >= 0; i--)
-            {
-                Particle particle = particles[i];
+			for (int i = particles.Count - 1; i >= 0; i--)
+			{
+				Particle particle = particles[i];
 
-                if (!particle.isActive) continue;
+				if (!particle.isActive) continue;
 
-                // 更新粒子计时器
-                particle.timer += 1f;
+				// 更新粒子计时器
+				particle.timer += 1f;
 
-                // 屏幕外检测
-                if (!cameraRect.Contains(particle.worldPosition))
-                {
-                    RemoveParticle(particle);
-                    continue;
-                }
+				// 屏幕外检测
+				if (!cameraRect.Contains(particle.worldPosition))
+				{
+					RemoveParticle(particle);
+					continue;
+				}
 
-                // 更新位置和速度
-                UpdateParticlePosition(particle);
+				// 更新位置和速度
+				UpdateParticlePosition(particle);
 
-                // 更新屏幕位置
-                UpdateScreenPosition(particle, cameraPos);
+				// 更新屏幕位置
+				UpdateScreenPosition(particle, cameraPos);
 
-                // 更新光源
-                UpdateLightSource(particle);
+				// 更新光源
+				UpdateLightSource(particle);
 
-                // 更新透明度
-                UpdateParticleAlpha(particle);
+				// 更新透明度
+				UpdateParticleAlpha(particle);
 
-                anyActive = true;
-            }
+				anyActive = true;
+			}
 
-            // 检查是否所有粒子都已销毁
-            if (!anyActive || currentLifetime >= maxLifetime)
-            {
-                Destroy();
-            }
-        }
+			// 检查是否所有粒子都已销毁
+			if (!anyActive || currentLifetime >= maxLifetime)
+			{
+				Destroy();
+			}
+		}
 
-        private void UpdateParticlePosition(Particle particle)
-        {
-            // 粒子生命周期阶段划分（基于计时器）
-            if (particle.timer < 100f)
-            {
-                // 第一阶段：0-100帧 - 快速移动
-                // 保持初始速度
-            }
-            else if (particle.timer < 120f)
-            {
-                // 第二阶段：100-120帧 - 减速
-                float slowdownFactor = 1f - (particle.timer - 100f) / 20f; // 从1到0线性减速
-                particle.velocity *= slowdownFactor;
-            }
-            else
-            {
-                // 第三阶段：120+帧 - 停止
-                particle.velocity = Vector2.zero;
-            }
+		private void UpdateParticlePosition(Particle particle)
+		{
+			// 粒子生命周期阶段划分（基于计时器）
+			if (particle.timer < 30f)
+			{
+				// 第一阶段：0-30帧 - 快速移动
+				// 保持初始速度
+			}
+			else if (particle.timer < 40f)
+			{
+				// 第二阶段：30-40帧 - 减速
+				float slowdownFactor = 1f - (particle.timer - 30f) / 10f; // 从1到0线性减速
+				particle.velocity *= slowdownFactor;
+			}
+			else
+			{
+				// 第三阶段：40+帧 - 停止
+				particle.velocity = Vector2.zero;
+			}
 
-            // 更新世界位置
-            particle.worldPosition += particle.velocity;
-        }
+			// 更新世界位置
+			particle.worldPosition += particle.velocity;
+		}
 
-        private void UpdateScreenPosition(Particle particle, Vector2 cameraPos)
-        {
-            // 世界坐标转屏幕坐标
-            Vector2 screenPos = new Vector2(
-                particle.worldPosition.x - cameraPos.x,
-                particle.worldPosition.y - cameraPos.y
-            );
+		private void UpdateScreenPosition(Particle particle, Vector2 cameraPos)
+		{
+			// 世界坐标转屏幕坐标
+			Vector2 screenPos = new Vector2(
+				particle.worldPosition.x - cameraPos.x,
+				particle.worldPosition.y - cameraPos.y
+			);
 
-            particle.container.SetPosition(screenPos);
-        }
+			particle.container.SetPosition(screenPos);
+		}
 
-        private void UpdateLightSource(Particle particle)
-        {
-            Vector2 cameraPos = room.game.cameras[0].pos;
-            Vector2 screenPos = new Vector2(
-                particle.worldPosition.x - cameraPos.x,
-                particle.worldPosition.y - cameraPos.y
-            );
+		private void UpdateLightSource(Particle particle)
+		{
+			Vector2 cameraPos = room.game.cameras[0].pos;
+			Vector2 screenPos = new Vector2(
+				particle.worldPosition.x - cameraPos.x,
+				particle.worldPosition.y - cameraPos.y
+			);
 
-            if (particle.lightSource == null)
-            {
-                // 使用正确的世界坐标创建光源
-                particle.lightSource = new LightSource(
-                    screenPos,
-                    false,
-                    new Color(209f / 255f, 69f / 255f, 247f / 255f),
-                    null
-                );
+			if (particle.lightSource == null)
+			{
+				// 使用正确的世界坐标创建光源
+				particle.lightSource = new LightSource(
+					screenPos,
+					false,
+					new Color(209f / 255f, 69f / 255f, 247f / 255f),
+					null
+				);
 
-                if (room != null)
-                {
-                    room.AddObject(particle.lightSource);
-                }
-            }
-            else
-            {
-                // 更新光源位置（使用世界坐标）
-                particle.lightSource.setPos = screenPos;
-                particle.lightSource.requireUpKeep = true;
+				if (room != null)
+				{
+					room.AddObject(particle.lightSource);
+				}
+			}
+			else
+			{
+				// 更新光源位置（使用世界坐标）
+				particle.lightSource.setPos = screenPos;
+				particle.lightSource.requireUpKeep = true;
 
-                // 设置光源半径（根据生命周期调整）
-                float radius = 0f;
-                if (particle.timer < 100f)
-                {
-                    // 0-100帧：光源半径逐渐增大
-                    radius = 50f * (particle.timer / 100f);
-                }
-                else if (particle.timer < 120f)
-                {
-                    // 100-120帧：保持最大半径
-                    radius = 50f;
-                }
-                else
-                {
-                    // 120+帧：光源半径随透明度减小
-                    radius = 50f * particle.container.alpha;
-                }
+				// 设置光源半径（根据生命周期调整）
+				float radius = 0f;
+				if (particle.timer < 30f)
+				{
+					// 0-30帧：光源半径逐渐增大
+					radius = 50f * (particle.timer / 30f);
+				}
+				else if (particle.timer < 40f)
+				{
+					// 30-40帧：保持最大半径
+					radius = 50f;
+				}
+				else
+				{
+					// 40+帧：光源半径随透明度减小
+					radius = 50f * particle.container.alpha;
+				}
 
-                particle.lightSource.setRad = radius;
-                particle.lightSource.stayAlive = true;
+				particle.lightSource.setRad = radius;
+				particle.lightSource.stayAlive = true;
 
-                // 更新光源透明度
-                particle.lightSource.setAlpha = particle.container.alpha;
+				// 更新光源透明度
+				particle.lightSource.setAlpha = particle.container.alpha;
 
-                // 检查光源是否需要销毁
-                if (particle.lightSource.slatedForDeletetion || particle.lightSource.room != room)
-                {
-                    particle.lightSource.Destroy();
-                    particle.lightSource = null;
-                }
-            }
-        }
+				// 检查光源是否需要销毁
+				if (particle.lightSource.slatedForDeletetion || particle.lightSource.room != room)
+				{
+					particle.lightSource.Destroy();
+					particle.lightSource = null;
+				}
+			}
+		}
 
-        private void UpdateParticleAlpha(Particle particle)
-        {
-            if (particle.timer < 30f)
-            {
-                // 0-30帧：快速显示（淡入）
-                particle.container.alpha = particle.timer / 30f;
-            }
-            else if (particle.timer < 120f)
-            {
-                // 30-120帧：保持完全可见
-                particle.container.alpha = 1f;
-            }
-            else
-            {
-                // 120+帧：缓慢消失（淡出）
-                float fadePhase = (particle.timer - 120f) / 360f;
-                particle.container.alpha = Mathf.Max(0f, 1f - fadePhase);
+		private void UpdateParticleAlpha(Particle particle)
+		{
+			if (particle.timer < 10f)
+			{
+				// 0-10帧：快速显示（淡入）
+				particle.container.alpha = particle.timer / 10f;
+			}
+			else if (particle.timer < 40f)
+			{
+				// 10-40帧：保持完全可见
+				particle.container.alpha = 1f;
+			}
+			else
+			{
+				// 40+帧：缓慢消失（淡出）
+				float fadePhase = (particle.timer - 40f) / 40f;
+				particle.container.alpha = Mathf.Max(0f, 1f - fadePhase);
 
-                // 完全透明后标记为不活跃
-                if (particle.container.alpha <= 0f)
-                {
-                    particle.isActive = false;
-                }
-            }
-        }
+				// 完全透明后标记为不活跃
+				if (particle.container.alpha <= 0f)
+				{
+					particle.isActive = false;
+				}
+			}
+		}
 
-        private void RemoveParticle(Particle particle)
-        {
-            if (particle.container != null)
-            {
-                masterContainer.RemoveChild(particle.container);
-                particle.container = null;
-            }
+		private void RemoveParticle(Particle particle)
+		{
+			if (particle.container != null)
+			{
+				masterContainer.RemoveChild(particle.container);
+				particle.container = null;
+			}
 
-            if (particle.lightSource != null)
-            {
-                particle.lightSource.Destroy();
-                particle.lightSource = null;
-            }
+			if (particle.lightSource != null)
+			{
+				particle.lightSource.Destroy();
+				particle.lightSource = null;
+			}
 
-            particles.Remove(particle);
-        }
+			particles.Remove(particle);
+		}
 
-        public void Destroy()
-        {
-            if (Destroyed) return;
+		public void Destroy()
+		{
+			if (Destroyed) return;
 
-            Destroyed = true;
+			Destroyed = true;
 
-            // 销毁所有粒子
-            for (int i = particles.Count - 1; i >= 0; i--)
-            {
-                RemoveParticle(particles[i]);
-            }
+			// 销毁所有粒子
+			for (int i = particles.Count - 1; i >= 0; i--)
+			{
+				RemoveParticle(particles[i]);
+			}
 
-            // 销毁主容器
-            if (masterContainer != null)
-            {
-                Futile.stage.RemoveChild(masterContainer);
-                masterContainer = null;
-            }
-        }
+			// 销毁主容器
+			if (masterContainer != null)
+			{
+				Futile.stage.RemoveChild(masterContainer);
+				masterContainer = null;
+			}
+		}
 
-        private void GenerateRandomParticle(FContainer container)
-        {
-            int shapeType = UnityEngine.Random.Range(0, 4);
+		private void GenerateRandomParticle(FContainer container)
+		{
+			int shapeType = UnityEngine.Random.Range(0, 6);
 
-            switch (shapeType)
-            {
-                case 0:
-                    CreatePixel(container, Vector2.zero);
-                    break;
+			switch (shapeType)
+			{
+				case 0:
+					CreatePixel(container, Vector2.zero);
+					break;
 
-                case 1:
-                    CreateShape1(container);
-                    break;
+				case 1:
+					CreateShape1(container);
+					break;
 
-                case 2:
-                    CreateShape2(container);
-                    break;
+				case 2:
+					CreateShape2(container);
+					break;
 
-                default:
-                    CreatePixel(container, Vector2.zero);
-                    break;
-            }
-        }
+				case 3:
+					CreateShape3(container);
+					break;
 
-        private void CreatePixel(FContainer container, Vector2 position)
-        {
-            FSprite pixel = new FSprite("pixel")
-            {
-                width = pixelSize,
-                height = pixelSize,
-                color = new Color(209f / 255f, 69f / 255f, 247f / 255f, 1f),
-                x = position.x,
-                y = position.y
-            };
-            container.AddChild(pixel);
-        }
+				default:
+					CreatePixel(container, Vector2.zero);
+					break;
+			}
+		}
 
-        private void CreateShape1(FContainer container)
-        {
-            Vector2[] positions = {
-                new Vector2(0, 0),
-                new Vector2(pixelSize, 0),
-                new Vector2(pixelSize, pixelSize),
-                new Vector2(pixelSize, pixelSize * 2),
-                new Vector2(0, pixelSize * 2),
-                new Vector2(-pixelSize, pixelSize * 2),
-                new Vector2(-pixelSize * 2, pixelSize * 2),
-                new Vector2(-pixelSize * 2, pixelSize),
-                new Vector2(-pixelSize * 2, 0),
-                new Vector2(-pixelSize * 2, -pixelSize),
-                new Vector2(-pixelSize * 2, -pixelSize * 2),
-                new Vector2(-pixelSize, -pixelSize * 2),
-                new Vector2(0, -pixelSize * 2),
-                new Vector2(pixelSize, -pixelSize * 2)
-            };
+		private void CreatePixel(FContainer container, Vector2 position)
+		{
+			FSprite pixel = new FSprite("pixel")
+			{
+				width = pixelSize,
+				height = pixelSize,
+				color = new Color(209f / 255f, 69f / 255f, 247f / 255f, 1f),
+				x = position.x,
+				y = position.y
+			};
+			container.AddChild(pixel);
+		}
 
-            foreach (Vector2 pos in positions)
-            {
-                CreatePixel(container, pos);
-            }
-        }
+		private void CreateShape1(FContainer container)
+		{
+			Vector2[] positions = {
+				new Vector2(0, 0),
+				new Vector2(pixelSize, 0),
+				new Vector2(pixelSize, pixelSize),
+				new Vector2(pixelSize, pixelSize * 2),
+				new Vector2(0, pixelSize * 2),
+				new Vector2(-pixelSize, pixelSize * 2),
+				new Vector2(-pixelSize * 2, pixelSize * 2),
+				new Vector2(-pixelSize * 2, pixelSize),
+				new Vector2(-pixelSize * 2, 0),
+				new Vector2(-pixelSize * 2, -pixelSize),
+				new Vector2(-pixelSize * 2, -pixelSize * 2),
+				new Vector2(-pixelSize, -pixelSize * 2),
+				new Vector2(0, -pixelSize * 2),
+				new Vector2(pixelSize, -pixelSize * 2)
+			};
 
-        private void CreateShape2(FContainer container)
-        {
-            Vector2[] positions = {
-                new Vector2(0, 0),
-                new Vector2(pixelSize * 2, 0),
-                new Vector2(-pixelSize * 2, 0),
-                new Vector2(pixelSize, pixelSize),
-                new Vector2(-pixelSize, pixelSize),
-                new Vector2(pixelSize * 2, pixelSize * 2),
-                new Vector2(-pixelSize * 2, pixelSize * 2),
-                new Vector2(0, pixelSize * 2),
-                new Vector2(pixelSize, -pixelSize),
-                new Vector2(-pixelSize, -pixelSize),
-                new Vector2(pixelSize * 2, -pixelSize * 2),
-                new Vector2(-pixelSize * 2, -pixelSize * 2),
-                new Vector2(0, -pixelSize * 2)
-            };
+			foreach (Vector2 pos in positions)
+			{
+				CreatePixel(container, pos);
+			}
+		}
 
-            foreach (Vector2 pos in positions)
-            {
-                CreatePixel(container, pos);
-            }
-        }
-    }
+		private void CreateShape2(FContainer container)
+		{
+			Vector2[] positions = {
+				new Vector2(0, 0),
+				new Vector2(pixelSize * 2, 0),
+				new Vector2(-pixelSize * 2, 0),
+				new Vector2(pixelSize, pixelSize),
+				new Vector2(-pixelSize, pixelSize),
+				new Vector2(pixelSize * 2, pixelSize * 2),
+				new Vector2(-pixelSize * 2, pixelSize * 2),
+				new Vector2(0, pixelSize * 2),
+				new Vector2(pixelSize, -pixelSize),
+				new Vector2(-pixelSize, -pixelSize),
+				new Vector2(pixelSize * 2, -pixelSize * 2),
+				new Vector2(-pixelSize * 2, -pixelSize * 2),
+				new Vector2(0, -pixelSize * 2)
+			};
+
+			foreach (Vector2 pos in positions)
+			{
+				CreatePixel(container, pos);
+			}
+		}
+
+		private void CreateShape3(FContainer container)
+		{
+			Vector2[] positions = {
+				// 中心点
+				new Vector2(0, 0),
+		
+				// 45° 对角线散射
+				new Vector2(pixelSize, pixelSize),
+				new Vector2(-pixelSize, -pixelSize),
+				new Vector2(pixelSize, -pixelSize),
+				new Vector2(-pixelSize, pixelSize),
+		
+				// 横向纵向扩展
+				new Vector2(pixelSize * 2, 0),
+				new Vector2(-pixelSize * 2, 0),
+				new Vector2(0, pixelSize * 2),
+				new Vector2(0, -pixelSize * 2),
+		
+				// 外层对角线大范围
+				/*new Vector2(pixelSize * 3, pixelSize * 3),
+				new Vector2(-pixelSize * 3, -pixelSize * 3),
+				new Vector2(pixelSize * 3, -pixelSize * 3),
+				new Vector2(-pixelSize * 3, pixelSize * 3)*/
+			};
+
+			foreach (Vector2 pos in positions)
+			{
+				CreatePixel(container, pos);
+			}
+		}
+
+
+	}
 }
 
 
@@ -601,8 +638,8 @@ namespace EnderPearl
 
 					// 修改2：直接更新世界坐标
 					fContainer[i].SetPosition(new Vector2(
-                        worldPos.x - camX,
-                        worldPos.y - camY
+						worldPos.x - camX,
+						worldPos.y - camY
 					));
 					Vector2 ownerScreenPos = new Vector2(fContainer[i].x, fContainer[i].y);
 

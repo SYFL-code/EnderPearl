@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -47,4 +47,4 @@ namespace EnderPearl
 
         private string? assetsPath;
     }
-}
+}*/
