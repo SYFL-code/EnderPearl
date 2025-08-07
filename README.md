@@ -1,20 +1,15 @@
-Use this template on GitHub or [download the code](https://github.com/SlimeCubed/ExampleSlugBaseMod/archive/refs/heads/master.zip), whichever is easiest.
+Ender Pearl
+Added the Ender Pearls from Minecraft to Rain world.
+In the story mode, there's a chance for spears to be replaced by Ender Pearls when generated.
+Before throwing an Ender Pearl, it's advisable to consider whether there's a wall in between.
 
-Links:
-- [Template Walkthrough](https://slimecubed.github.io/slugbase/articles/template.html) for a guide to this template.
-- [SlugBase Docs](https://slimecubed.github.io/slugbase/) for information regarding custom slugcats.
-- [Modding Wiki](https://rainworldmodding.miraheze.org/wiki/Downpour_Reference/Mod_Directories) for `modinfo.json` documentation.
+Code at https://github.com/SYFL-code/EnderPearl
 
 
-----------------以下为咱的补充内容----------------
-那么 大家好啊...咱是寂空
 
-这是一个由Slugbase的作者SlimeCubed制作的模板，提供了一些预制的角色属性和一组简单的自定义技能。咱翻译了文件中的部分注释内容 并且做了一点简单的修改
-这个文件遵循CC0协议发布 作为公开内容贡献给开源社区并可以自由使用，因此你可以随意修改和使用这个模板模组 事实上咱也建议你全程使用这个模板进行创作，可以避免许多麻烦
+末影珍珠
+添加了《我的世界》的末影珍珠到雨世界。
+在剧情模式有概率替代矛生成末影珍珠。
+建议在投掷末影珍珠前先思考中间是否隔着一堵墙。
 
-自己的教程还在更新 如果没那么急切地需要看中文教程的话 也可以参考上面的原版文档进行开发
-(咱就默认你已经跟着咱的教程装好VS了....如果你要这么做的话建议先去看一点C#基础)（？
-
-那么 祝你好运啦....
-
-补充：已经更新到新版本使其重新可用(2025/3/11)
+源代码在 https://github.com/SYFL-code/EnderPearl

@@ -14,6 +14,22 @@ namespace EnderPearl
             {
                 ReleaseAllGrasps(obj);
             }
+            if (obj is Player player)
+            {
+                if (player.tongue != null)
+                {
+                    player.tongue.resetRopeLength();
+                    player.tongue.mode = Player.Tongue.Mode.Retracted;
+                    player.tongue.rope.Reset();
+                }
+                for (int num12 = 0; num12 < 2; num12++)
+                {
+                    //player.bodyChunks[num12].vel = Custom.DegToVec(UnityEngine.Random.value * 360f) * 12f;
+                    player.bodyChunks[num12].pos = newPos;
+                    player.bodyChunks[num12].lastPos = newPos;
+                }
+                return;
+            }
             int num = 0;
             for (; ; )
             {

@@ -76,7 +76,7 @@ sealed class Plugin : BaseUnityPlugin
 
     void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
 	{
-		/*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
+        /*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
 			var tilePos = self.GetTilePosition(shell.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
 			var abstr = new EnderPearlAbstract(self.world, pos, self.game.GetNewID()) {
@@ -90,7 +90,8 @@ sealed class Plugin : BaseUnityPlugin
 			self.abstractRoom.AddEntity(abstr);
 		}*/
 
-		if (obj is Spear spear && UnityEngine.Random.value < 0.01f)
+        //Arena
+        if (self.world.game.IsStorySession && obj is Spear spear && UnityEngine.Random.value < 0.01f)
 		{
 			var tilePos = self.GetTilePosition(spear.firstChunk.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);

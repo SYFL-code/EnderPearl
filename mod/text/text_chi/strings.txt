@@ -1,0 +1,3 @@
+Ender Pearl|末影珍珠
+
+Added the Ender Pearl from Minecraft to Rain world.<LINE>In the story mode, there's a chance for spears to be replaced by Ender Pearls when generated.<LINE>Before throwing an Ender Pearl, it's advisable to consider whether there's a wall in between.<LINE><LINE>Code at https://github.com/SYFL-code/EnderPearl|添加了《我的世界》的末影珍珠到雨世界。<LINE>在剧情模式有概率替代矛生成末影珍珠。<LINE>建议在投掷末影珍珠前先思考中间是否隔着一堵墙。<LINE><LINE>源代码在 https://github.com/SYFL-code/EnderPearl
