@@ -9,7 +9,8 @@ sealed class EnderPearlFisob : Fisob
 {
     public static readonly AbstractPhysicalObject.AbstractObjectType EnderPearl = new("EnderPearl", true);
     //public static readonly MultiplayerUnlocks.SandboxUnlockID RedEnderPearl = new("RedEnderPearl", true);
-    public static readonly MultiplayerUnlocks.SandboxUnlockID AnEnderPearl = new("AnEnderPearl", true);
+    public static readonly MultiplayerUnlocks.SandboxUnlockID ItemUnlockEnderPearl = new("EnderPearl", true);
+    public static readonly SLOracleBehaviorHasMark.MiscItemType MiscItemTypeEnderPearl = new("EnderPearl", true);
 
     public EnderPearlFisob() : base(EnderPearl)
     {
@@ -25,7 +26,7 @@ sealed class EnderPearlFisob : Fisob
 
         SandboxPerformanceCost = new(linear: 0.35f, exponential: 0f);
 
-        RegisterUnlock(AnEnderPearl);
+        RegisterUnlock(ItemUnlockEnderPearl);
         //RegisterUnlock(RedEnderPearl, parent: MultiplayerUnlocks.SandboxUnlockID.RedCentipede, data: 0);
     }
 

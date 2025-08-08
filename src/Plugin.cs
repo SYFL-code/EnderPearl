@@ -22,6 +22,12 @@ using Menu.Remix;
 using MonoMod.RuntimeDetour;
 using Watcher;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
+using MonoMod.Cil;
+using System.Security;
+using Noise;
+using Mono.Cecil.Cil;
+using System.Reflection;
 
 
 
@@ -33,50 +39,64 @@ namespace EnderPearl;
 [BepInPlugin("org.dual.EnderPearl", nameof(EnderPearl), "1.1.0")]
 sealed class Plugin : BaseUnityPlugin
 {
+	private static bool init; // 初始化标志
 
-    private static ConditionalWeakTable<Player, StrongBox<Vector2>> LastThrowDirection = new ConditionalWeakTable<Player, StrongBox<Vector2>>();
+	private static ConditionalWeakTable<Player, StrongBox<Vector2>> LastThrowDirection = new ConditionalWeakTable<Player, StrongBox<Vector2>>();
 
-    public void OnEnable()
+	public void OnEnable()
 	{
-        On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+		init = false;
 
-        Content.Register(new EnderPearlFisob());
+		On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+
+		/*if (init) return;
+		init = true;*/
+
+		Content.Register(new EnderPearlFisob());
 
 		// Create centi shields when centipedes lose their shells
 		// 当蜈蚣失去壳时创建蜈蚣盾牌
 		On.Room.AddObject += RoomAddObject;
-        On.Player.CanBeSwallowed += Player_CanBeSwallowed;
-        On.RainWorld.Update += EnderPearl.RainWorld_Update;
+		On.Player.CanBeSwallowed += Player_CanBeSwallowed;
+		On.RainWorld.Update += EnderPearl.RainWorld_Update;
+		//101
+		IL.ScavengerAbstractAI.InitGearUp += IL_ScavengerAbstractAI_InitGearUp;//001
+		IL.ScavengerTreasury.ctor += IL_ScavengerTreasury_ctor;//010
+		IL.ScavengerAbstractAI.TradeItem += IL_ScavengerAbstractAI_TradeItem;//011
+		//On.ItemSymbol.ColorForItem += On_ItemSymbol_ColorForItem;//100
+		//On.ItemSymbol.SpriteNameForItem += On_ItemSymbol_SpriteNameForItem;//101
+		On.SLOracleBehaviorHasMark.TypeOfMiscItem += On_SLOracleBehaviorHasMark_TypeOfMiscItem;//110
+		On.SLOracleBehaviorHasMark.MoonConversation.AddEvents += On_SLOracleBehaviorHasMark_MoonConversation_AddEvents;//111
 
-        // Protect the player from grabs while holding a shield
-        // 手持盾牌时保护玩家免受抓取
-        //On.Creature.Grab += CreatureGrab;
-        EnderPearl.HookTexture();
+		// Protect the player from grabs while holding a shield
+		// 手持盾牌时保护玩家免受抓取
+		//On.Creature.Grab += CreatureGrab;
+		EnderPearl.HookTexture();
 
-        //Gives slugcat the ability to throw Ender Pearl in any direction.
-        //赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
-        On.Player.ctor += Player_ctor;
+		//Gives slugcat the ability to throw Ender Pearl in any direction.
+		//赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
+		On.Player.ctor += Player_ctor;
 		On.Player.Update += Player_Update;
 		On.Player.ThrowObject += Player_ThrowObject;
-    }
+	}
 
-    private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+	private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
-        orig.Invoke(self);
+		orig.Invoke(self);
 
-        EnderPearl.HookSound();
-        //ParticleEffect1.HookTexture();
-    }
+		EnderPearl.HookSound();
+		//ParticleEffect1.HookTexture();
+	}
 
-    public void OnDisable()
-    {
-        LastThrowDirection = null;
-    }
-
-
-    void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
+	public void OnDisable()
 	{
-        /*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
+		LastThrowDirection = null;
+	}
+
+
+	void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
+	{
+		/*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
 			var tilePos = self.GetTilePosition(shell.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
 			var abstr = new EnderPearlAbstract(self.world, pos, self.game.GetNewID()) {
@@ -90,8 +110,8 @@ sealed class Plugin : BaseUnityPlugin
 			self.abstractRoom.AddEntity(abstr);
 		}*/
 
-        //Arena
-        if (self.world.game.IsStorySession && obj is Spear spear && UnityEngine.Random.value < 0.01f)
+		//Arena
+		if (self.world.game.IsStorySession && obj is Spear spear && UnityEngine.Random.value < 0.01f)
 		{
 			var tilePos = self.GetTilePosition(spear.firstChunk.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
@@ -104,19 +124,19 @@ sealed class Plugin : BaseUnityPlugin
 		orig(self, obj);
 	}
 
-    public static bool Player_CanBeSwallowed(On.Player.orig_CanBeSwallowed orig, Player player, PhysicalObject testObj)
-    {
-        if ((!ModManager.MSC || !(player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Spear)) && testObj is EnderPearl)
-        {
-            return true;
-        }
-        else
-        {
-            return orig(player, testObj);
-        }
-    }
+	public static bool Player_CanBeSwallowed(On.Player.orig_CanBeSwallowed orig, Player player, PhysicalObject testObj)
+	{
+		if ((!ModManager.MSC || !(player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Spear)) && testObj is EnderPearl)
+		{
+			return true;
+		}
+		else
+		{
+			return orig(player, testObj);
+		}
+	}
 
-    /*bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
+	/*bool CreatureGrab(On.Creature.orig_Grab orig, Creature self, PhysicalObject obj, int _, int _2, Creature.Grasp.Shareability _3, float dominance, bool _4, bool _5)
 	{
 		const float maxDistance = 8;
 
@@ -136,63 +156,254 @@ sealed class Plugin : BaseUnityPlugin
 
 	private void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world)
 	{
-        orig.Invoke(self, abstractCreature, world);
-        StrongBox<Vector2> strongBox;
-        if (!LastThrowDirection.TryGetValue(self, out strongBox))
-        {
-            LastThrowDirection.Add(self, new StrongBox<Vector2>());
-        }
-    }
+		orig.Invoke(self, abstractCreature, world);
+		StrongBox<Vector2> strongBox;
+		if (!LastThrowDirection.TryGetValue(self, out strongBox))
+		{
+			LastThrowDirection.Add(self, new StrongBox<Vector2>());
+		}
+	}
 
-    private void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
-    {
-        Player.InputPackage[] input = self.input;
-        if (input != null && input.Length != 0)
-        {
-            ref Player.InputPackage ptr = ref input[0];
-            Vector2 normalized = new Vector2((float)ptr.x, (float)ptr.y).normalized;
-            StrongBox<Vector2> strongBox;
-            if (LastThrowDirection.TryGetValue(self, out strongBox) && normalized.magnitude > 0f)
-            {
-                strongBox.Value = normalized;
-            }
-        }
-        orig.Invoke(self, eu);
-    }
+	private void Player_Update(On.Player.orig_Update orig, Player self, bool eu)
+	{
+		Player.InputPackage[] input = self.input;
+		if (input != null && input.Length != 0)
+		{
+			ref Player.InputPackage ptr = ref input[0];
+			Vector2 normalized = new Vector2((float)ptr.x, (float)ptr.y).normalized;
+			StrongBox<Vector2> strongBox;
+			if (LastThrowDirection.TryGetValue(self, out strongBox) && normalized.magnitude > 0f)
+			{
+				strongBox.Value = normalized;
+			}
+		}
+		orig.Invoke(self, eu);
+	}
 
-    private void Player_ThrowObject(On.Player.orig_ThrowObject orig, Player self, int grasp, bool eu)
-    {
-        Creature.Grasp[] grasps = self.grasps;
-        object? obj;
-        if (grasps == null)
-        {
-            obj = null;
-        }
-        else
-        {
-            Creature.Grasp grasp2 = grasps[grasp];
-            obj = ((grasp2 != null) ? grasp2.grabbed : null);
-        }
-        orig.Invoke(self, grasp, eu);
-        Weapon? weapon = obj as Weapon;
-        StrongBox<Vector2> strongBox;
-        if (weapon != null  && weapon is EnderPearl enderPearl && LastThrowDirection.TryGetValue(self, out strongBox))
-        {
-            Vector2 value = strongBox.Value;
-            BodyChunk[] bodyChunks = enderPearl.bodyChunks;
-            Vector2 pos = self.mainBodyChunk.pos + value * 10f;
-            foreach (BodyChunk bodyChunk in bodyChunks)
-            {
-                bodyChunk.pos = pos;
-                bodyChunk.vel = value * 40f;
-            }
-            enderPearl.setRotation = new Vector2?(value);
-        }
-    }
+	private void Player_ThrowObject(On.Player.orig_ThrowObject orig, Player self, int grasp, bool eu)
+	{
+		Creature.Grasp[] grasps = self.grasps;
+		object? obj;
+		if (grasps == null)
+		{
+			obj = null;
+		}
+		else
+		{
+			Creature.Grasp grasp2 = grasps[grasp];
+			obj = ((grasp2 != null) ? grasp2.grabbed : null);
+		}
+		orig.Invoke(self, grasp, eu);
+		Weapon? weapon = obj as Weapon;
+		StrongBox<Vector2> strongBox;
+		if (weapon != null  && weapon is EnderPearl enderPearl && LastThrowDirection.TryGetValue(self, out strongBox))
+		{
+			Vector2 value = strongBox.Value;
+			BodyChunk[] bodyChunks = enderPearl.bodyChunks;
+			Vector2 pos = self.mainBodyChunk.pos + value * 10f;
+			foreach (BodyChunk bodyChunk in bodyChunks)
+			{
+				bodyChunk.pos = pos;
+				bodyChunk.vel = value * 40f;
+			}
+			enderPearl.setRotation = new Vector2?(value);
+		}
+	}
+
+	/// <summary>
+	/// 根据条件自然生成EnderPearl
+	/// </summary>
+	private static int SpawnEnderPearl(ScavengerAbstractAI self, int count)
+	{
+		if (count >= 0 && UnityEngine.Random.value < ((self.parent.creatureTemplate.type == CreatureTemplate.Type.Scavenger ? 0.08f : 0.06f)))
+		{
+			//var EnderPearl = new EnderPearlAbstract(self.world, self.parent.pos, self.world.game.GetNewID());
+
+			var EnderPearl = new AbstractPhysicalObject(self.world, EnderPearlFisob.EnderPearl, null, self.parent.pos, self.world.game.GetNewID());
+			self.world.GetAbstractRoom(self.parent.pos).AddEntity(EnderPearl);
+			new AbstractPhysicalObject.CreatureGripStick(self.parent, EnderPearl, count, true);
+			count--;
+		}
+		return count;
+	}
+
+	/// <summary>
+	/// 修改初始化装备时的逻辑，尝试自然生成风炸弹
+	/// </summary>
+	private static void IL_ScavengerAbstractAI_InitGearUp(ILContext il)
+	{
+		var c = new ILCursor(il);
+		if (c.TryGotoNext(
+			x => x.MatchLdloc(0),
+			x => x.MatchLdcI4(0),
+			x => x.MatchBlt(out var _),
+			x => x.MatchCallOrCallvirt(out var _),
+			x => x.MatchLdcR4(0.08f),
+			x => x.MatchBgeUn(out var _)
+		))
+		{
+			c.MoveAfterLabels();
+			c.Emit(OpCodes.Ldarg_0);
+			c.Emit(OpCodes.Ldloc_0);
+			c.EmitDelegate(SpawnEnderPearl);
+			c.Emit(OpCodes.Stloc_0);
+		}
+	}
+
+	/// <summary>
+	/// 在交易时尝试生成EnderPearl
+	/// </summary>
+	private static AbstractPhysicalObject EnderPearlTrade(AbstractSpear orig, ScavengerAbstractAI self)
+	{
+		if (true)
+		{
+			float chance = 0.1f;
+			if (!self.world.singleRoomWorld)
+			{
+				var region = self.world.region.name;
+				/*if (region == "SI")
+				{
+					chance = 0.25f;
+				}
+				else if (region == "CC" || region == "UW")
+				{
+					chance = 0.15625f;
+				}*/
+			}
+			if (UnityEngine.Random.value < chance)
+			{
+				//return new EnderPearlAbstract(self.world, self.parent.pos, self.world.game.GetNewID());
+				return new AbstractPhysicalObject(self.world, EnderPearlFisob.EnderPearl, null, self.parent.pos, self.world.game.GetNewID());
+			}
+		}
+		return orig;
+	}
+
+	/// <summary>
+	/// 修改交易物品时的逻辑
+	/// </summary>
+	private static void IL_ScavengerAbstractAI_TradeItem(ILContext il)
+	{
+		var c = new ILCursor(il);
+		if (c.TryGotoNext(
+			MoveType.After,
+			x => x.MatchNewobj<AbstractSpear>()
+		))
+		{
+			c.MoveAfterLabels();
+			c.Emit(OpCodes.Ldarg_0);
+			c.EmitDelegate(EnderPearlTrade);
+		}
+	}
+
+	/// <summary>
+	/// 在宝库生成物品时尝试生成EnderPearl
+	/// </summary>
+	public static AbstractPhysicalObject TreasuryEnderPearl(AbstractPhysicalObject orig, ScavengerTreasury self, int i)
+	{
+		if (true)
+		{
+			var chance = 0.05f;
+			if (!self.room.world.singleRoomWorld)
+			{
+				var region = self.room.world.region.name;
+				/*if (region == "SI")
+				{
+					chance = 0.1f;
+				}
+				else if (region == "CC" || region == "UW")
+				{
+					chance = 0.7f;
+				}*/
+			}
+			if (UnityEngine.Random.value < chance)
+			{
+				//return new EnderPearlAbstract(self.room.world, self.room.GetWorldCoordinate(self.tiles[i]), self.room.world.game.GetNewID());
+				return new AbstractPhysicalObject(self.room.world, EnderPearlFisob.EnderPearl, null, self.room.GetWorldCoordinate(self.tiles[i]), self.room.game.GetNewID());
+			}
+		}
+		return orig;
+	}
+
+	/// <summary>
+	/// 修改宝库初始化时的逻辑
+	/// </summary>
+	private static void IL_ScavengerTreasury_ctor(ILContext il)
+	{
+		var c = new ILCursor(il);
+		//var skip = c.DefineLabel();
+		var skip2 = c.DefineLabel();
+		if (c.TryGotoNext(
+			x => x.MatchLdarg(0),
+			x => x.MatchLdfld<ScavengerTreasury>("property"),
+			x => x.MatchLdloc(8),
+			x => x.MatchCallOrCallvirt(out var _)
+		))
+		{
+			c.MoveAfterLabels();
+			c.Emit(OpCodes.Ldloc, 8);
+			c.Emit(OpCodes.Ldarg_0);
+			c.Emit(OpCodes.Ldloc, 7);
+			c.EmitDelegate(TreasuryEnderPearl);
+			c.Emit(OpCodes.Stloc, 8);
+		}
+	}
+
+	/// <summary>
+	/// 修改物品符号颜色的逻辑
+	/// </summary>
+	private static Color On_ItemSymbol_ColorForItem(On.ItemSymbol.orig_ColorForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
+	{
+		if (itemType == EnderPearlFisob.EnderPearl)
+			return new Color(209f / 255f, 69f / 255f, 247f / 255f, 1f);
+		return orig(itemType, intData);
+	}
+
+	/// <summary>
+	/// 修改物品符号名称的逻辑
+	/// </summary>
+	private static string On_ItemSymbol_SpriteNameForItem(On.ItemSymbol.orig_SpriteNameForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
+	{
+		if (itemType == EnderPearlFisob.EnderPearl)
+			return "Symbol_EnderPearl";
+		return orig(itemType, intData);
+	}
+
+	/// <summary>
+	/// 修改杂项物品类型的逻辑
+	/// </summary>
+	private static SLOracleBehaviorHasMark.MiscItemType On_SLOracleBehaviorHasMark_TypeOfMiscItem(On.SLOracleBehaviorHasMark.orig_TypeOfMiscItem orig, SLOracleBehaviorHasMark self, PhysicalObject testItem)
+	{
+		if (testItem is EnderPearl)
+		{
+			return EnderPearlFisob.MiscItemTypeEnderPearl;
+		}
+		return orig(self, testItem);
+	}
+
+	/// <summary>
+	/// 在月之对话事件中添加EnderPearl的描述
+	/// </summary>
+	private static void On_SLOracleBehaviorHasMark_MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
+	{
+		orig(self);
+		if (self.id == Conversation.ID.Moon_Misc_Item)
+		{
+			if (self.describeItem == EnderPearlFisob.MiscItemTypeEnderPearl)
+			{
+				// 这是某种生物的眼睛，含有少量的虚空流体。<LINE>当它受损时，它会将用户分解成量子态并在着陆点重新组装。<LINE>然而，如果中间被墙壁阻挡，情况就变得危险: 使用者可能在运输途中重组，导致与障碍物发生碰撞死亡。
+				self.events.Add(new Conversation.TextEvent(self, 10, self.Translate("This is the eye of a certain being, containing a small amount of void fluid.<LINE>When damaged, it decomposes the user into a quantum state and reassembles them at the landing point.<LINE>However, if obstructed by a wall, the situation becomes perilous: the user may be reassembled mid-transit, resulting in a fatal collision with the barrier."), 0));
+				return;
+			}
+		}
+	}
 
 
-    // 随机查找当前房间的生物
-    public static Creature? RandomlySelectedCreature(Room room, bool IncludePlayer, Creature? creature, bool IncludeDeadCreature)
+
+	/// <summary>
+	/// 随机查找当前房间的生物
+	/// </summary>
+	public static Creature? RandomlySelectedCreature(Room room, bool IncludePlayer, Creature? creature, bool IncludeDeadCreature)
 	{
 		List<Creature> creatures = new List<Creature>();
 
