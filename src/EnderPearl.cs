@@ -121,9 +121,18 @@ sealed class EnderPearl : Weapon
 		{
 			PE.Add(new ParticleEffect(thrownBy.room, thrownBy.mainBodyChunk.pos, true));
 
-			Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
+			//Teleport.SetObjectPosition(thrownBy, firstChunk.pos);
 
-			if (soundID_Teleport1 != null && soundID_Teleport2 != null)
+			if (thrownBy is Player player)
+			{
+                player.SuperHardSetPosition(firstChunk.pos);
+            }
+			else
+			{
+                SuperHardSetPosition(thrownBy, firstChunk.pos);
+            }
+
+            if (soundID_Teleport1 != null && soundID_Teleport2 != null)
 			{
 				if (1 == UnityEngine.Random.Range(1, 3))
 					thrownBy.room.PlaySound(soundID_Teleport1, thrownBy.mainBodyChunk.pos);
@@ -151,7 +160,28 @@ sealed class EnderPearl : Weapon
 		return false;
 	}
 
-	public override void Update(bool eu)
+    public void SuperHardSetPosition(Creature creature, Vector2 pos)
+    {
+        for (int i = 0; i < creature.bodyChunks.Length; i++)
+        {
+            creature.bodyChunks[i].HardSetPosition(pos);
+            /*for (int j = 0; j < 2; j++)
+            {
+                creature.graphicsModule.drawPositions[i, j] = pos;
+            }*/
+        }
+        Teleport.SetObjectPosition(creature, firstChunk.pos);
+
+        creature.bodyChunks[1].pos.x = creature.bodyChunks[0].pos.x - 1f;
+        foreach (BodyPart bodyPart in creature.graphicsModule.bodyParts)
+        {
+            bodyPart.pos = pos;
+            bodyPart.lastPos = pos;
+        }
+    }
+
+
+    public override void Update(bool eu)
 	{
 		base.Update(eu);
 
