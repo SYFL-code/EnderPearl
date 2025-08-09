@@ -20,7 +20,7 @@ namespace EnderPearl
 		private List<Particle> particles = new List<Particle>();
 		private FContainer masterContainer;
 
-		public float pixelSize = 2f;
+		public float pixelSize = 1.5f;
 		private const float maxLifetime = 90f; // 90帧 
 		private float currentLifetime = 0f;
 		public bool Destroyed = false;

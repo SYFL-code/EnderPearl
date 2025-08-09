@@ -28,6 +28,8 @@ using System.Security;
 using Noise;
 using Mono.Cecil.Cil;
 using System.Reflection;
+using BepInEx.Logging;
+using System.IO;
 
 
 
@@ -59,8 +61,8 @@ sealed class Plugin : BaseUnityPlugin
 		On.Room.AddObject += RoomAddObject;
 		On.Player.CanBeSwallowed += Player_CanBeSwallowed;
 		On.RainWorld.Update += EnderPearl.RainWorld_Update;
-		//101
-		IL.ScavengerAbstractAI.InitGearUp += IL_ScavengerAbstractAI_InitGearUp;//001
+        PlayerHooks.HookOn();
+        IL.ScavengerAbstractAI.InitGearUp += IL_ScavengerAbstractAI_InitGearUp;//001
 		IL.ScavengerTreasury.ctor += IL_ScavengerTreasury_ctor;//010
 		IL.ScavengerAbstractAI.TradeItem += IL_ScavengerAbstractAI_TradeItem;//011
 		//On.ItemSymbol.ColorForItem += On_ItemSymbol_ColorForItem;//100
@@ -73,9 +75,11 @@ sealed class Plugin : BaseUnityPlugin
 		//On.Creature.Grab += CreatureGrab;
 		EnderPearl.HookTexture();
 
-		//Gives slugcat the ability to throw Ender Pearl in any direction.
-		//赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
-		On.Player.ctor += Player_ctor;
+		//On.Player.TerrainImpact += Player_TerrainImpact;
+
+        //Gives slugcat the ability to throw Ender Pearl in any direction.
+        //赋予蛞蝓猫向任意方向投掷末影珍珠的能力。
+        On.Player.ctor += Player_ctor;
 		On.Player.Update += Player_Update;
 		On.Player.ThrowObject += Player_ThrowObject;
 	}
@@ -94,7 +98,66 @@ sealed class Plugin : BaseUnityPlugin
 	}
 
 
-	void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
+
+	/*public static void Player_TerrainImpact(On.Player.orig_TerrainImpact orig, Player player, int chunk, IntVector2 direction, float speed, bool firstContact)
+    {
+		*//*if (EnderPearl.boo)
+		{
+            Logg($"start, player({player}), chunk({chunk}), direction({direction}), speed ({speed}), firstContact({firstContact})");
+
+            orig(player, chunk, direction, speed, firstContact);
+
+            Logg($"end, player({player}), chunk({chunk}), direction({direction}), speed ({speed}), firstContact({firstContact})");
+        }
+		else
+		{
+            orig(player, chunk, direction, speed, firstContact);
+        }*//*
+
+    }*/
+
+    public static bool LogReset = true;
+    public static void Logg(string newContent)
+	{
+        string filePath = "LH_MySlugcat_log.txt";
+
+        try
+        {
+            Debug.Log(newContent);
+            Console.WriteLine(newContent);
+            // 如果文件不存在，直接创建并写入 或 新进游戏
+            if (!File.Exists(filePath) || LogReset)
+            {
+                File.WriteAllText(filePath, newContent + "\n" + $"=== 新日志 {DateTime.Now.ToString()} ===\n");
+                UnityEngine.Debug.Log($"已创建新文件,文件路径: {Path.GetFullPath(filePath)}");
+                Console.WriteLine($"已创建新文件,文件路径: {Path.GetFullPath(filePath)}");
+                LogReset = false;
+            }
+            else
+            {
+                // 读取现有内容
+                string existingContent = File.ReadAllText(filePath);
+
+                if (1 == 1)
+                {
+                    // 将新内容放在顶部 + 原有内容
+                    File.WriteAllText(filePath, newContent + "\n" + existingContent);
+                }
+            }
+
+            UnityEngine.Debug.Log($"内容已添加到文件顶部: {Path.GetFullPath(filePath)}");
+            Console.WriteLine($"内容已添加到文件顶部: {Path.GetFullPath(filePath)}");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"操作失败: {ex}");
+        }
+
+    }
+
+
+    void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
 	{
 		/*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
 			var tilePos = self.GetTilePosition(shell.pos);
@@ -215,7 +278,7 @@ sealed class Plugin : BaseUnityPlugin
 	/// </summary>
 	private static int SpawnEnderPearl(ScavengerAbstractAI self, int count)
 	{
-		if (count >= 0 && UnityEngine.Random.value < ((self.parent.creatureTemplate.type == CreatureTemplate.Type.Scavenger ? 0.08f : 0.06f)))
+		if (count >= 0 && UnityEngine.Random.value < (self.parent.creatureTemplate.type == CreatureTemplate.Type.Scavenger ? 0.01f : 0.02f))
 		{
 			//var EnderPearl = new EnderPearlAbstract(self.world, self.parent.pos, self.world.game.GetNewID());
 
@@ -257,7 +320,7 @@ sealed class Plugin : BaseUnityPlugin
 	{
 		if (true)
 		{
-			float chance = 0.1f;
+			float chance = 0.01f;
 			if (!self.world.singleRoomWorld)
 			{
 				var region = self.world.region.name;
@@ -303,7 +366,7 @@ sealed class Plugin : BaseUnityPlugin
 	{
 		if (true)
 		{
-			var chance = 0.05f;
+			var chance = 0.02f;
 			if (!self.room.world.singleRoomWorld)
 			{
 				var region = self.room.world.region.name;
@@ -391,9 +454,12 @@ sealed class Plugin : BaseUnityPlugin
 		{
 			if (self.describeItem == EnderPearlFisob.MiscItemTypeEnderPearl)
 			{
-				// 这是某种生物的眼睛，含有少量的虚空流体。<LINE>当它受损时，它会将用户分解成量子态并在着陆点重新组装。<LINE>然而，如果中间被墙壁阻挡，情况就变得危险: 使用者可能在运输途中重组，导致与障碍物发生碰撞死亡。
-				self.events.Add(new Conversation.TextEvent(self, 10, self.Translate("This is the eye of a certain being, containing a small amount of void fluid.<LINE>When damaged, it decomposes the user into a quantum state and reassembles them at the landing point.<LINE>However, if obstructed by a wall, the situation becomes perilous: the user may be reassembled mid-transit, resulting in a fatal collision with the barrier."), 0));
-				return;
+                // 这是某种生物的眼睛，含有少量的虚空流体。<LINE>
+                // 当它受损时，它会将生物分解成量子态并在着陆点重新组装。
+                // 文本事件（对话所属者，初始等待时间，文本内容，文本停留时长）
+                self.events.Add(new Conversation.TextEvent(self, 10, self.Translate("This is the eye of a certain being, containing a small amount of void fluid."), 0));
+                self.events.Add(new Conversation.TextEvent(self, 10, self.Translate("When damaged, it decomposes the creature into a quantum state and reassembles them at the landing point."), 0));
+                return;
 			}
 		}
 	}

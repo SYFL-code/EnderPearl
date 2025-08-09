@@ -3,7 +3,7 @@
   "name": "Ender Pearl",
   "version": "1.1.0",
   "authors": "LH",
-  "description": "Added the Ender Pearl from Minecraft to Rain world.<LINE>In the story mode, there's a chance for spears to be replaced by Ender Pearls when generated.<LINE>Before throwing an Ender Pearl, it's advisable to consider whether there's a wall in between.<LINE>Code at https://github.com/SYFL-code/EnderPearl",
+  "description": "Added the Ender Pearls from Minecraft to Rain world.<LINE>In the story mode, there's a chance for Ender Pearls to be generated.<LINE><LINE>Thanks to 绿叶_Natural_leaf for the code assistance.<LINE><LINE>Code at https://github.com/SYFL-code/EnderPearl<LINE>Feel free to use it if you want.",
   "requirements": [ "fisobs" ],
   "requirements_names": [ "Fisobs" ],
   "tags": [ "Items", "Base", "Downpour", "Watcher" ],

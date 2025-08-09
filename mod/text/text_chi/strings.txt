@@ -1,5 +1,11 @@
 Ender Pearl|末影珍珠
+EnderPearl|末影珍珠
+ENDER PEARL|末影珍珠
+ENDERPEARL|末影珍珠
+ender pearl|末影珍珠
+enderpearl|末影珍珠
 
-Added the Ender Pearl from Minecraft to Rain world.<LINE>In the story mode, there's a chance for spears to be replaced by Ender Pearls when generated.<LINE>Before throwing an Ender Pearl, it's advisable to consider whether there's a wall in between.<LINE><LINE>Code at https://github.com/SYFL-code/EnderPearl|添加了《我的世界》的末影珍珠到雨世界。<LINE>在剧情模式有概率替代矛生成末影珍珠。<LINE>在投掷末影珍珠之前，最好考虑一下中间是否被墙壁阻挡。<LINE><LINE>源代码在 https://github.com/SYFL-code/EnderPearl
+Added the Ender Pearls from Minecraft to Rain world.<LINE>In the story mode, there's a chance for Ender Pearls to be generated.<LINE><LINE>Thanks to 绿叶_Natural_leaf for the code assistance.<LINE><LINE>Code at https://github.com/SYFL-code/EnderPearl<LINE>Feel free to use it if you want.|添加了《我的世界》的末影珍珠到雨世界。<LINE>在剧情模式有概率生成末影珍珠。<LINE><LINE>感谢 绿叶_Natural_leaf 的代码帮助<LINE><LINE>源代码在 https://github.com/SYFL-code/EnderPearl<LINE>如果你愿意，可以随意使用它。
 
-This is the eye of a certain being, containing a small amount of void fluid.<LINE>When damaged, it decomposes the user into a quantum state and reassembles them at the landing point.<LINE>However, if obstructed by a wall, the situation becomes perilous: the user may be reassembled mid-transit, resulting in a fatal collision with the barrier.|这是某种生物的眼睛，含有少量的虚空流体。<LINE>当它受损时，它会将用户分解成量子态并在着陆点重新组装。<LINE>然而，如果中间被墙壁阻挡，情况就变得危险: 使用者可能在运输途中重组，导致与障碍物发生碰撞死亡。
+This is the eye of a certain being, containing a small amount of void fluid.|这是某种生物的眼睛，含有少量的虚空流体。
+When damaged, it decomposes the creature into a quantum state and reassembles them at the landing point.|当它受损时，它会将生物分解成量子态并在着陆点重新组装。

@@ -32,11 +32,43 @@ sealed class EnderPearlFisob : Fisob
 
     public override AbstractPhysicalObject Parse(World world, EntitySaveData saveData, SandboxUnlock? unlock)
     {
+        // Centi shield data is just floats separated by ; characters.
+        // Centi 盾牌数据只是浮点数，以 ;字符。
+        string[] p = saveData.CustomData.Split(';');
+
+        if (p.Length < 2)
+        {
+            p = new string[2];
+        }
+
+        var result = new EnderPearlAbstract(world, saveData.Pos, saveData.ID)
+        {
+            scaleX = float.TryParse(p[0], out var x) ? x : 1,
+            scaleY = float.TryParse(p[1], out var y) ? y : 1,
+        };
+
+        // If this is coming from a sandbox unlock, the hue and size should depend on the data value (see EnderPearlIcon below).
+        // 如果这来自沙盒解锁，则色调和大小应取决于数据值（请参见下面的EnderPearlicon）。
+        /*if (unlock is SandboxUnlock u)
+        {
+            if (u.Data == 0)
+            {
+                result.scaleX += 0.2f;
+                result.scaleY += 0.2f;
+            }
+        }*/
+
+        return result;
+    }
+
+
+    /*public override AbstractPhysicalObject Parse(World world, EntitySaveData saveData, SandboxUnlock? unlock)
+    {
 
         var result = new EnderPearlAbstract(world, saveData.Pos, saveData.ID);
 
         return result;
-    }
+    }*/
 
     /*public override AbstractPhysicalObject Parse(World world, EntitySaveData saveData, SandboxUnlock? unlock)
     {
@@ -70,7 +102,7 @@ sealed class EnderPearlFisob : Fisob
         return result;
     }*/
 
-    /*private static readonly EnderPearlProperties properties = new();
+    private static readonly EnderPearlProperties properties = new();
 
     public override ItemProperties Properties(PhysicalObject forObject)
     {
@@ -79,5 +111,5 @@ sealed class EnderPearlFisob : Fisob
         // The Mosquitoes example demonstrates this.
         // 蚊子的例子证明了这一点。
         return properties;
-    }*/
+    }
 }

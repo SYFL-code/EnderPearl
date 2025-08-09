@@ -9,8 +9,8 @@ sealed class EnderPearlAbstract : AbstractPhysicalObject
     {
         scaleX = 1;
         scaleY = 1;
-        saturation = 0.5f;
-        hue = 1f;
+        /*saturation = 0.5f;
+        hue = 1f;*/
     }
 
     public override void Realize()
@@ -20,11 +20,16 @@ sealed class EnderPearlAbstract : AbstractPhysicalObject
             realizedObject = new EnderPearl(this, Room.realizedRoom.MiddleOfTile(pos.Tile));
     }
 
-    public float hue;
+    /*public float hue;
     public float saturation;
+    public float damage;*/
     public float scaleX;
     public float scaleY;
-    public float damage;
+
+    public override string ToString()
+    {
+        return this.SaveToString($"{scaleX};{scaleY}");
+    }
 
     /*public override string ToString()
     {
