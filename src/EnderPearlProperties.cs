@@ -11,14 +11,14 @@ sealed class EnderPearlProperties : ItemProperties
         => throwable = true;
 
     public override void ScavCollectScore(Scavenger scavenger, ref int score)
-        => score = 6;
+        => score = 14;
 
     public override void ScavWeaponPickupScore(Scavenger scav, ref int score)
-        => score = 6;
+        => score = 1;
 
     // Don't throw shields 不要扔盾牌 => score = 0;
     public override void ScavWeaponUseScore(Scavenger scav, ref int score)
-        => score = 1;
+        => score = 0;
 
     public override void Grabability(Player player, ref Player.ObjectGrabability grabability)
     {

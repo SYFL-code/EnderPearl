@@ -290,10 +290,10 @@ sealed class Plugin : BaseUnityPlugin
 		return count;
 	}
 
-	/// <summary>
-	/// 修改初始化装备时的逻辑，尝试自然生成风炸弹
-	/// </summary>
-	private static void IL_ScavengerAbstractAI_InitGearUp(ILContext il)
+    /// <summary>
+    /// 修改初始化装备时的逻辑，尝试自然生成EnderPearl
+    /// </summary>
+    private static void IL_ScavengerAbstractAI_InitGearUp(ILContext il)
 	{
 		var c = new ILCursor(il);
 		if (c.TryGotoNext(
