@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using EnderPearl;
 
 internal static class PlayerModuleManager
 {
@@ -30,12 +31,19 @@ internal static class PlayerModuleManager
                 coolDown--;
         }
 
-        public void OnPlayerMovementUpdate(Player self)
+        public void OnPlayerMovementUpdate(Player player)
         {
             if (Teleport)
             {
                 Vector2 almostZero = new Vector2(0.0001f, -0.00009f);
-                self.bodyChunks[1].terrainCurveNormal = almostZero;
+                player.bodyChunks[1].terrainCurveNormal = almostZero;
+                if (EnderPearl.Options.Instance.OpCheckBoxStunUponLanding.Value != null && EnderPearl.Options.Instance.OpCheckBoxStunDuration.Value != null)
+                {
+                    if (EnderPearl.Options.Instance.OpCheckBoxStunUponLanding.Value && EnderPearl.Options.Instance.OpCheckBoxStunDuration.Value > 0)
+                    {
+                        player.Stun((int)Math.Round(40 * EnderPearl.Options.Instance.OpCheckBoxStunDuration.Value));
+                    }
+                }
                 Teleport = false;
             }
         }

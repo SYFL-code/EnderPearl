@@ -88,7 +88,8 @@ sealed class Plugin : BaseUnityPlugin
 	{
 		orig.Invoke(self);
 
-		EnderPearl.HookSound();
+        MachineConnector.SetRegisteredOI("Ender_Pearl.LH", Options.Instance);
+        EnderPearl.HookSound();
 		//ParticleEffect1.HookTexture();
 	}
 

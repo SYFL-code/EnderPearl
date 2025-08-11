@@ -9,3 +9,8 @@ Added the Ender Pearls from Minecraft to Rain world.<LINE>In the story mode, the
 
 This is the eye of a certain being, containing a small amount of void fluid.|这是某种生物的眼睛，含有少量的虚空流体。
 When damaged, it decomposes the creature into a quantum state and reassembles them at the landing point.|当它受损时，它会将生物分解成量子态并在着陆点重新组装。
+
+Options|选项
+Ender Pearl|末影珍珠
+Stun upon landing|落地时眩晕
+Stun duration|眩晕持续时间

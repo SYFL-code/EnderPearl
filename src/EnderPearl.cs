@@ -204,11 +204,38 @@ sealed class EnderPearl : Weapon
 			if (thrownBy is Player player)
 			{
 				player.SuperHardSetPosition(firstChunk.pos);
+
+				for (int i = 0; i < player.grasps.Length; i++)
+				{
+                    if (player.grasps[i] == null)
+                    {
+						continue;
+                    }
+					var grasp = player.grasps[i];
+
+					grasp.grabbedChunk.setPos = firstChunk.pos;
+                    grasp.grabbedChunk.pos = firstChunk.pos;
+					grasp.grabbedChunk.lastPos = firstChunk.pos;
+                    grasp.grabbedChunk.lastLastPos = firstChunk.pos;
+					grasp.grabbedChunk.vel = Vector2.zero;
+
+                    for (int j = 0; j < player.grabbedBy.Count; j++)
+                    {
+                        var grasp1 = player.grabbedBy[j];
+                        grasp1.grabbedChunk.setPos = firstChunk.pos;
+                        grasp1.grabbedChunk.pos = firstChunk.pos;
+                        grasp1.grabbedChunk.lastPos = firstChunk.pos;
+                        grasp1.grabbedChunk.lastLastPos = firstChunk.pos;
+                        grasp1.grabbedChunk.vel = Vector2.zero;
+                    }
+                }
+
                 //player.standing = false;
                 if (PlayerModuleManager.playerModules.TryGetValue(player, out var module))
                 {
                     module.Teleport = true;
                 }
+
 
             }
 			else
@@ -248,7 +275,7 @@ sealed class EnderPearl : Weapon
 
 	public void SuperHardSetPosition(Creature creature, Vector2 pos)
 	{
-		for (int i = 0; i < creature.bodyChunks.Length; i++)
+        for (int i = 0; i < creature.bodyChunks.Length; i++)
 		{
 			creature.bodyChunks[i].HardSetPosition(pos);
 			/*for (int j = 0; j < 2; j++)
