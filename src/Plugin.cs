@@ -158,8 +158,25 @@ sealed class Plugin : BaseUnityPlugin
     }
 
 
-    void RoomAddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
+    void RoomAddObject(On.Room.orig_AddObject orig, Room room, UpdatableAndDeletable obj)
 	{
+
+		orig(room, obj); // ✅ 先处理原始对象
+
+		// ✅ 只在故事模式，且原始对象是 Spear 时，额外生成 EnderPearl
+		if (room.world?.game?.IsStorySession == true && room.abstractRoom?.shelter == false &&
+			obj is Spear spear &&
+			UnityEngine.Random.value < 0.01f)
+		{
+			var tilePos = room.GetTilePosition(spear.firstChunk.pos);
+			var pos = new WorldCoordinate(room.abstractRoom.index, tilePos.x, tilePos.y, 0);
+			var abstr = new EnderPearlAbstract(room.world, pos, room.game.GetNewID());
+			var enderPearl = new EnderPearl(abstr, spear.firstChunk.pos);
+
+			room.abstractRoom.AddEntity(abstr); // ✅ 添加 abstract
+			orig(room, enderPearl);             // ✅ 使用 orig 添加物理对象
+		}
+
 		/*if (obj is CentipedeShell shell && shell.scaleX > 0.9f && shell.scaleY > 0.9f && Random.value < 0.25f) {
 			var tilePos = self.GetTilePosition(shell.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
@@ -175,7 +192,7 @@ sealed class Plugin : BaseUnityPlugin
 		}*/
 
 		//Arena
-		if (self.world.game.IsStorySession && obj is Spear spear && UnityEngine.Random.value < 0.01f)
+		/*if (self.world.game.IsStorySession && obj is Spear spear && UnityEngine.Random.value < 0.01f)
 		{
 			var tilePos = self.GetTilePosition(spear.firstChunk.pos);
 			var pos = new WorldCoordinate(self.abstractRoom.index, tilePos.x, tilePos.y, 0);
@@ -185,7 +202,7 @@ sealed class Plugin : BaseUnityPlugin
 			self.abstractRoom.AddEntity(abstr);
 		}
 
-		orig(self, obj);
+		orig(self, obj);*/
 	}
 
 	public static bool Player_CanBeSwallowed(On.Player.orig_CanBeSwallowed orig, Player player, PhysicalObject testObj)
